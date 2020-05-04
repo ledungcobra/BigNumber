@@ -481,3 +481,9 @@ Qint::Qint(const Qint&other){
            _data[i] = other._data[i];
        }
 }
+
+std::string Qint::toString()
+{
+	return Convert::CovertBinToNumString(BitProcess::GetBit(_data));
+	
+}

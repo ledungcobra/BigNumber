@@ -1,4 +1,4 @@
-
+﻿
 // BigNumberDlg.cpp : implementation file
 //
 
@@ -12,6 +12,7 @@
 #define new DEBUG_NEW
 #endif
 #include <string>
+#include "ExpressionProcessor.h"
 
 
 // CAboutDlg dialog used for App About
@@ -93,14 +94,17 @@ void CBigNumberDlg::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_BUTTON27, BTN_E);
 	DDX_Control(pDX, IDC_BUTTON32, BTN_F);
 	DDX_Control(pDX, AFX_ID_PREVIEW_NUMPAGE, EDT_Expression);
-	DDX_Control(pDX, AFX_ID_PREVIEW_CLOSE, EDT_RESULT);
+	DDX_Control(pDX, AFX_ID_PREVIEW_CLOSE, EDT_Result);
+	DDX_Control(pDX, IDC_BUTTON42, BTN_DEC_EX);
+	DDX_Control(pDX, IDC_BUTTON43, BTN_HEX_EX);
+	DDX_Control(pDX, IDC_BUTTON44, BTN_BIN_EX);
 }
 
 BEGIN_MESSAGE_MAP(CBigNumberDlg, CDialogEx)
 	ON_WM_SYSCOMMAND()
 	ON_WM_PAINT()
 	ON_WM_QUERYDRAGICON()
-
+	//D
 	ON_BN_CLICKED(ID_RECORD_FIRST, &CBigNumberDlg::OnBnClickedEqual)
 	ON_BN_CLICKED(IDC_BUTTON28, &CBigNumberDlg::OnBnClicked1)
 	ON_BN_CLICKED(IDC_BUTTON29, &CBigNumberDlg::OnBnClicked2)
@@ -122,7 +126,7 @@ BEGIN_MESSAGE_MAP(CBigNumberDlg, CDialogEx)
 	ON_BN_CLICKED(IDC_BUTTON9, &CBigNumberDlg::OnBnClickedShiftRight)
 	ON_BN_CLICKED(IDC_BUTTON8, &CBigNumberDlg::OnBnClickedShiftLeft)
 	ON_BN_CLICKED(IDC_BUTTON14, &CBigNumberDlg::OnBnClickedCloseParentheses)
-	ON_BN_CLICKED(IDC_BUTTON13, &CBigNumberDlg::OnBnClickedCloseParetheses)
+	ON_BN_CLICKED(IDC_BUTTON13, &CBigNumberDlg::OnBnClickedOpenParentheses)
 	ON_BN_CLICKED(IDC_BUTTON33, &CBigNumberDlg::OnBnClickedPosOrNegative)
 	ON_BN_CLICKED(IDC_BUTTON32, &CBigNumberDlg::OnBnClickedF)
 	ON_BN_CLICKED(IDC_BUTTON27, &CBigNumberDlg::OnBnClickedE)
@@ -136,7 +140,10 @@ BEGIN_MESSAGE_MAP(CBigNumberDlg, CDialogEx)
 	ON_BN_CLICKED(IDC_BUTTON39, &CBigNumberDlg::OnBnClickedNOT)
 	ON_BN_CLICKED(IDC_BUTTON40, &CBigNumberDlg::OnBnClickedROR)
 	ON_BN_CLICKED(IDC_BUTTON41, &CBigNumberDlg::OnBnClickedROL)
-	ON_BN_CLICKED(IDC_BUTTON15, &CBigNumberDlg::OnBnClickedPercent)
+	ON_BN_CLICKED(IDC_BUTTON42, &CBigNumberDlg::OnBnClickedDecEx)
+	ON_BN_CLICKED(IDC_BUTTON43, &CBigNumberDlg::OnBnClickedHexEx)
+	ON_BN_CLICKED(IDC_BUTTON44, &CBigNumberDlg::OnBnClickedBinEx)
+	//D
 END_MESSAGE_MAP()
 
 
@@ -172,6 +179,7 @@ BOOL CBigNumberDlg::OnInitDialog()
 	SetIcon(m_hIcon, FALSE);		// Set small icon
 
 	// TODO: Add extra initialization here
+	CheckRadioButton(IDC_RADIO5, IDC_RADIO7, IDC_RADIO5);
 
 	return TRUE;  // return TRUE  unless you set the focus to a control
 }
@@ -232,220 +240,374 @@ CString CBigNumberDlg::ConvertStringToCString(std::string input)
 	return CString(input.c_str());
 }
 
+std::string CBigNumberDlg::ConvertCStringToString(CString cstring)
+{
+	CT2A t(cstring);
+	std::string result(t);
+	return result;
+}
+
+void CBigNumberDlg::UpdateUI()
+{
+	EDT_Expression.SetWindowTextW(expression);
+	EDT_Result.SetWindowTextW(result);
+
+	if (exMode == HEX) {
+		OnHexMode();
+	}
+	else if (exMode == DEC) {
+		OnDecMode();
+	}
+	else if(exMode == BIN) {
+		OnBinMode();
+	}
+};
+
 
 
 
 void CBigNumberDlg::OnBnClickedEqual()
 {
+
+	UpdateResult();
+
 	
+}
+
+void CBigNumberDlg::UpdateResult()
+{
+
+	if (exMode == DEC) {
+
+		ExpressionProcessor expressHandle(ConvertCStringToString(expression));
+		result = ConvertStringToCString(expressHandle.GetResult().toString());
+
+
+		if (DEC == resultMode) {
+			return;
+		}
+		else if (HEX == resultMode) {
+			Qint resultQint(expressHandle.GetResult());
+			result = ConvertStringToCString(resultQint.DecToHex());
+		}
+		else if (BIN == resultMode) {
+			Qint resultQint(expressHandle.GetResult());
+			std::string resultBin = "";
+			for (int i = 0; i < 128; i++) {
+				resultBin += resultQint.DecToBin()[i] ? '1' : '0';
+			}
+			result = ConvertStringToCString(resultBin);
+		}
+		UpdateUI();
+	}
+	else {
+
+	}
+
 }
 
 
 void CBigNumberDlg::OnBnClicked1()
 {
-	// TODO: Add your control notification handler code here
+	if(!CheckValidInput(NUMBER)) return;
+	expression += _T("1");
+	UpdateUI();
+
 }
 
 
 void CBigNumberDlg::OnBnClicked2()
 {
-	// TODO: Add your control notification handler code here
+	if (!CheckValidInput(NUMBER)) return;
+	expression += _T("2");
+	UpdateUI();
 }
 
 
 void CBigNumberDlg::OnBnClicked3()
 {
-	// TODO: Add your control notification handler code here
+	if (!CheckValidInput(NUMBER)) return;
+	expression += _T("3");
+	UpdateUI();
 }
 
 
 void CBigNumberDlg::OnBnClicked4()
 {
-	// TODO: Add your control notification handler code here
+	if (!CheckValidInput(NUMBER)) return;
+	expression += _T("4");
+	UpdateUI();
 }
 
 
 void CBigNumberDlg::OnBnClicked5()
 {
-	// TODO: Add your control notification handler code here
+	if (!CheckValidInput(NUMBER)) return;
+	expression += _T("5");
+	UpdateUI();
 }
 
 
 void CBigNumberDlg::OnBnClicked6()
 {
-	// TODO: Add your control notification handler code here
+	if (!CheckValidInput(NUMBER)) return;
+	expression += _T("6");
+	UpdateUI();
 }
 
 
 void CBigNumberDlg::OnBnClicked7()
 {
-	// TODO: Add your control notification handler code here
+	if (!CheckValidInput(NUMBER)) return;
+	expression += _T("7");
+	UpdateUI();
 }
 
 
 void CBigNumberDlg::OnBnClicked8()
 {
-	// TODO: Add your control notification handler code here
+	if (!CheckValidInput(NUMBER)) return;
+	expression += _T("8");
+	UpdateUI();
 }
 
 
 void CBigNumberDlg::OnBnClicked9()
 {
-	// TODO: Add your control notification handler code here
+	if (!CheckValidInput(NUMBER)) return;
+	expression += _T("9");
+	UpdateUI();
 }
 
 
 void CBigNumberDlg::OnBnClicked0()
 {
-	// TODO: Add your control notification handler code here
+	if (!CheckValidInput(NUMBER)) return;
+	expression += _T("0");
+	UpdateUI();
 }
 
 
 void CBigNumberDlg::OnBnClickedDot()
 {
-	// TODO: Add your control notification handler code here
+	//Trường hợp nhập 1 dấu chấm
+	if (!CheckValidInput(DOT)) return;
+	expression += _T(".");
+	UpdateUI();
 }
 
 
 void CBigNumberDlg::OnBnClickedPlus()
 {
-	// TODO: Add your control notification handler code here
+	//Trường hợp nhập + không có số hạng
+	CheckValidInput(OPERATOR);
+	expression += _T("+");
+	UpdateUI();
 }
 
 
 void CBigNumberDlg::OnBnClickedSubtract()
 {
-	// TODO: Add your control notification handler code here
+	CheckValidInput(OPERATOR);
+	expression += _T("-");
+	UpdateUI();
 }
 
 
 void CBigNumberDlg::OnBnClickedMultiply()
 {
-	// TODO: Add your control notification handler code here
+	CheckValidInput(OPERATOR);
+	expression += _T("X");
+	UpdateUI();
 }
 
 
 void CBigNumberDlg::OnBnClickedDivide()
 {
-	// TODO: Add your control notification handler code here
+	CheckValidInput(OPERATOR);
+	expression += _T("÷");
+	UpdateUI();
 }
 
 
 void CBigNumberDlg::OnBnClickedClearOneChar()
 {
-	// TODO: Add your control notification handler code here
+	if (expression.GetLength() >= 1) {
+		expression.Delete(expression.GetLength() - 1, 1);
+		UpdateUI();
+	}
+	
 }
 
 
 void CBigNumberDlg::OnBnClickedClearAll()
 {
-	// TODO: Add your control notification handler code here
+	expression = _T("");
+	result = _T("");
+	UpdateUI();
 }
 
 
 void CBigNumberDlg::OnBnClickedShiftRight()
 {
-	// TODO: Add your control notification handler code here
+	CheckValidInput(OPERATOR);
+	expression += _T(">>");
+	UpdateUI();
 }
 
 
 void CBigNumberDlg::OnBnClickedShiftLeft()
 {
-	// TODO: Add your control notification handler code here
+	CheckValidInput(OPERATOR);
+	expression += _T("<<");
+	UpdateUI();
 }
 
 
 void CBigNumberDlg::OnBnClickedCloseParentheses()
 {
-	// TODO: Add your control notification handler code here
+	CheckValidInput(CLOSE_PARENTHESES);
+	expression += _T(")");
+	UpdateUI();
 }
 
 
-void CBigNumberDlg::OnBnClickedCloseParetheses()
+
+void CBigNumberDlg::OnBnClickedOpenParentheses()
 {
-	// TODO: Add your control notification handler code here
+	CheckValidInput(OPEN_PARENTHESES);
+	expression += _T("(");
+	UpdateUI();
 }
 
 
 void CBigNumberDlg::OnBnClickedPosOrNegative()
 {
-	// TODO: Add your control notification handler code here
+	expression.Insert(0, _T("-("));
+	expression.Insert(expression.GetLength(), _T(")"));
+	UpdateUI();
+
 }
 
 
 void CBigNumberDlg::OnBnClickedF()
 {
-	// TODO: Add your control notification handler code here
+	expression += _T("F");
+	UpdateUI();
 }
 
 
 void CBigNumberDlg::OnBnClickedE()
 {
-	// TODO: Add your control notification handler code here
+	expression += _T("E");
+	UpdateUI();
 }
 
 
 void CBigNumberDlg::OnBnClickedD()
 {
-	// TODO: Add your control notification handler code here
+	expression += _T("D");
+	UpdateUI();
 }
 
 
 void CBigNumberDlg::OnBnClickedC()
 {
-	// TODO: Add your control notification handler code here
+	expression += _T("C");
+	UpdateUI();
 }
 
 
 void CBigNumberDlg::OnBnClickedB()
 {
-	// TODO: Add your control notification handler code here
+	expression += _T("B");
+	UpdateUI();
 }
 
 
 void CBigNumberDlg::OnBnClickedA()
 {
-	// TODO: Add your control notification handler code here
+	expression += _T("A");
+	UpdateUI();
 }
 
 
 void CBigNumberDlg::OnBnClickedAND()
 {
-	// TODO: Add your control notification handler code here
+	CheckValidInput(OPERATOR);
+	expression += _T("&");
+	UpdateUI();
 }
 
 
 void CBigNumberDlg::OnBnClickedOR()
 {
-	// TODO: Add your control notification handler code here
+	CheckValidInput(OPERATOR);
+	expression += _T("|");
+	UpdateUI();
 }
 
 
 void CBigNumberDlg::OnBnClickedXOR()
 {
-	// TODO: Add your control notification handler code here
+	CheckValidInput(OPERATOR);
+	expression += _T("^");
+	UpdateUI();
 }
 
 
 void CBigNumberDlg::OnBnClickedNOT()
 {
-	// TODO: Add your control notification handler code here
+	CheckValidInput(OPERATOR);
+	expression += _T("~");
+	UpdateUI();
 }
 
 
 void CBigNumberDlg::OnBnClickedROR()
 {
-	// TODO: Add your control notification handler code here
+
+	expression += _T("ror");
+	UpdateUI();
 }
 
 
 void CBigNumberDlg::OnBnClickedROL()
 {
-	// TODO: Add your control notification handler code here
+	expression += _T("rol");
+	UpdateUI();
 }
 
 
-void CBigNumberDlg::OnBnClickedPercent()
+
+void CBigNumberDlg::OnBnClickedDecEx()
 {
-	// TODO: Add your control notification handler code here
+	BTN_DEC_EX.EnableWindow(FALSE);
+	BTN_HEX_EX.EnableWindow(TRUE);
+	BTN_BIN_EX.EnableWindow(TRUE);
+	exMode = DEC;
+	ResetUI();
+	UpdateUI();
+}
+
+
+void CBigNumberDlg::OnBnClickedHexEx()
+{
+	BTN_DEC_EX.EnableWindow(TRUE);
+	BTN_HEX_EX.EnableWindow(FALSE);
+	BTN_BIN_EX.EnableWindow(TRUE);
+	exMode = HEX;
+	ResetUI();
+	UpdateUI();
+}
+
+
+void CBigNumberDlg::OnBnClickedBinEx()
+{
+	BTN_DEC_EX.EnableWindow(TRUE);
+	BTN_HEX_EX.EnableWindow(TRUE);
+	BTN_BIN_EX.EnableWindow(FALSE);
+	exMode = BIN;
+	ResetUI();
+	UpdateUI();
 }

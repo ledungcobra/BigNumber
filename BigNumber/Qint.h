@@ -88,4 +88,5 @@ public:
 public:
 	friend std::ostream& operator<<(std::ostream& os, const Qint& dt);
 	friend std::istream& operator>>(std::istream& is, Qint& dt);
+	std::string toString();
 };
