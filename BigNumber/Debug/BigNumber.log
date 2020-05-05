@@ -1,0 +1,3 @@
+﻿  BigNumberDlg.cpp
+C:\Users\ledun\Desktop\BigNumber\BigNumber\ExpressionProcessor.h(82,21): warning C4018: '<': signed/unsigned mismatch
+  BigNumber.vcxproj -> C:\Users\ledun\Desktop\BigNumber\Debug\BigNumber.exe

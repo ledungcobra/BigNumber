@@ -101,7 +101,7 @@ private:
 			
 		}
 		void OnBinMode() {
-			BTN_EQUAL.EnableWindow(FALSE);
+			BTN_EQUAL.EnableWindow(TRUE);
 			BTN_PLUS.EnableWindow(TRUE);;
 			BTN_SUBTRACT.EnableWindow(TRUE);;
 			BTN_MULTIPLY.EnableWindow(TRUE);;
@@ -214,7 +214,7 @@ public:
 	CEdit EDT_Expression;
 	CEdit EDT_Result;
 	afx_msg void OnBnClickedEqual();
-	void UpdateResult();
+	void UpdateModeUI();
 	afx_msg void OnBnClicked1();
 	afx_msg void OnBnClicked2();
 	afx_msg void OnBnClicked3();
@@ -255,4 +255,10 @@ public:
 	CButton BTN_BIN_EX;
 	afx_msg void OnBnClickedHexEx();
 	afx_msg void OnBnClickedBinEx();
+
+	
+	afx_msg void OnBnClickedDecRadioBtn();
+	afx_msg void OnBnClickedBinRadioBtn();
+	afx_msg void OnBnClickedHexRadioBtn();
+	afx_msg void OnChangeInput();
 };
