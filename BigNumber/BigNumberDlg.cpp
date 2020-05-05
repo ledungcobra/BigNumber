@@ -144,6 +144,12 @@ BEGIN_MESSAGE_MAP(CBigNumberDlg, CDialogEx)
 	ON_BN_CLICKED(IDC_BUTTON43, &CBigNumberDlg::OnBnClickedHexEx)
 	ON_BN_CLICKED(IDC_BUTTON44, &CBigNumberDlg::OnBnClickedBinEx)
 	//D
+
+	
+	ON_BN_CLICKED(IDC_RADIO5, &CBigNumberDlg::OnBnClickedDecRadioBtn)
+	ON_BN_CLICKED(IDC_RADIO6, &CBigNumberDlg::OnBnClickedBinRadioBtn)
+	ON_BN_CLICKED(IDC_RADIO7, &CBigNumberDlg::OnBnClickedHexRadioBtn)
+	ON_EN_CHANGE(AFX_ID_PREVIEW_NUMPAGE, &CBigNumberDlg::OnChangeInput)
 END_MESSAGE_MAP()
 
 
@@ -268,23 +274,23 @@ void CBigNumberDlg::UpdateUI()
 
 void CBigNumberDlg::OnBnClickedEqual()
 {
-
-	UpdateResult();
+	EDT_Expression.GetWindowTextW(expression);
+	UpdateModeUI();
 
 	
 }
 
-void CBigNumberDlg::UpdateResult()
+void CBigNumberDlg::UpdateModeUI()
 {
 
 	if (exMode == DEC) {
 
 		ExpressionProcessor expressHandle(ConvertCStringToString(expression));
 		result = ConvertStringToCString(expressHandle.GetResult().toString());
-
+		
 
 		if (DEC == resultMode) {
-			return;
+			result = ConvertStringToCString(expressHandle.GetResult().toString());
 		}
 		else if (HEX == resultMode) {
 			Qint resultQint(expressHandle.GetResult());
@@ -293,16 +299,58 @@ void CBigNumberDlg::UpdateResult()
 		else if (BIN == resultMode) {
 			Qint resultQint(expressHandle.GetResult());
 			std::string resultBin = "";
+			
 			for (int i = 0; i < 128; i++) {
 				resultBin += resultQint.DecToBin()[i] ? '1' : '0';
+			
 			}
+			
 			result = ConvertStringToCString(resultBin);
-		}
-		UpdateUI();
-	}
-	else {
+			for (int i = 0; i < result.GetLength(); i++) {
+				if (i != 0 && i % 81 == 0) {
+					result.Insert(i, _T("\r\n"));
+				}
+			}
 
+		}
+		
 	}
+	else if(exMode == BIN){
+		if (expression.GetLength() < 128) {
+			int count = 128 - expression.GetLength();
+			for (int i = 0; i < count; i++) expression.Insert(0, _T("0"));
+		}
+		if (expression.GetLength() > 128) {
+			int count = expression.GetLength()-128;
+			expression.Delete(0,count);
+		}
+		if (resultMode == DEC) {
+			Qint resultQint(ConvertCStringToString(expression),0);
+			result = ConvertStringToCString(resultQint.toString());
+		}
+		else if (resultMode == BIN) {
+			result = expression;
+		}
+		else if (resultMode == HEX) {
+			Qint resultQint(ConvertCStringToString(expression), 0);
+			result = ConvertStringToCString(resultQint.BinToHex(ConvertCStringToString(expression)));
+
+		}
+		
+	}
+	else if (exMode == HEX) {
+	
+		if (resultMode == DEC) {
+			//CHUA
+		}
+		else if (resultMode == BIN) {
+			//CHUA
+		}
+		else if(resultMode == HEX) {
+			result = expression;
+		}
+	}
+	UpdateUI();
 
 }
 
@@ -610,4 +658,39 @@ void CBigNumberDlg::OnBnClickedBinEx()
 	exMode = BIN;
 	ResetUI();
 	UpdateUI();
+}
+
+
+
+
+
+
+void CBigNumberDlg::OnBnClickedDecRadioBtn()
+{
+	resultMode = DEC;
+	UpdateModeUI();
+}
+
+
+void CBigNumberDlg::OnBnClickedBinRadioBtn()
+{
+	resultMode = BIN;
+	UpdateModeUI();
+}
+
+
+void CBigNumberDlg::OnBnClickedHexRadioBtn()
+{
+	resultMode = HEX;
+	UpdateModeUI();
+}
+
+
+void CBigNumberDlg::OnChangeInput()
+{
+	EDT_Expression.GetWindowTextW(expression);
+	if (exMode == BIN) {
+		int last = expression.GetLength() - 1;
+		
+	}
 }
