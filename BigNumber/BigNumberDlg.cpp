@@ -189,7 +189,10 @@ BOOL CBigNumberDlg::OnInitDialog()
 	SetIcon(m_hIcon, FALSE);		// Set small icon
 
 	// TODO: Add extra initialization here
+	//INIT VALUE HERE
 	CheckRadioButton(IDC_RADIO5, IDC_RADIO7, IDC_RADIO5);
+
+	
 
 	return TRUE;  // return TRUE  unless you set the focus to a control
 }
