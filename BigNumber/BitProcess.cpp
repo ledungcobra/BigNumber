@@ -1,5 +1,8 @@
 #include "pch.h"
 #include "BitProcess.h"
+#include "Convert.h"
+
+std::unique_ptr<BitProcess> BitProcess::m_pInstance(nullptr);
 
 bool BitProcess::GetBit(const unsigned char memory, const unsigned int& pos)
 {
@@ -121,7 +124,7 @@ std::string BitProcess::AddTwoBits(std::string bits1, std::string bits2)
 
 std::string BitProcess::SubtractTwoBits(std::string bits1, std::string bits2)
 {
-	Convert::ConvertBitsToTwoComplement(bits2, true);
+	Convert::Instance()->ConvertBitsToTwoComplement(bits2, true);
 	std::string result = BitProcess::AddTwoBits(bits1, bits2);
 	return result;
 }
@@ -210,5 +213,19 @@ void BitProcess::ShiftLeftTwoBits(std::string& A, std::string& Q) {
 
 	A = concatenatedResult.substr(0, A.length());
 	Q = concatenatedResult.substr(A.length(), Q.length());
+}
+
+BitProcess::BitProcess()
+{
+
+}
+
+std::unique_ptr<BitProcess>& BitProcess::Instance()
+{
+	if (m_pInstance.get() == nullptr)
+	{
+		m_pInstance.reset(new BitProcess());
+	}
+	return m_pInstance;
 }
 

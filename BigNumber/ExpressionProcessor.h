@@ -9,8 +9,8 @@
 class ExpressionProcessor
 {
 private:
-	std::string expression;
-	Qint _result;
+	std::string _expression;
+	std::string _result;
 	Mode _mode;
 
 	int getPrioritize(std::string c)
@@ -78,16 +78,16 @@ private:
 		std::stack<std::string> stackExp;
 		std::queue<std::string> queueExp;
 
-		expression = "(" + expression;
-		expression = expression + ")";
-		for (int i = 0; i < expression.length(); i++)
+		_expression = "(" + _expression;
+		_expression = _expression + ")";
+		for (int i = 0; i < _expression.length(); i++)
 		{
-			if (expression[i] == '(')
+			if (_expression[i] == '(')
 			{
-				std::string temp(1, expression[i]);
+				std::string temp(1, _expression[i]);
 				stackExp.push(temp);
 			}
-			else if (expression[i] == ')')
+			else if (_expression[i] == ')')
 			{
 				while (stackExp.top() != "(")
 				{
@@ -96,12 +96,12 @@ private:
 				}
 				stackExp.pop();
 			}
-			else if (isNumber(expression[i]))
+			else if (isNumber(_expression[i]))
 			{
 				std::string numTemp;
-				while (isNumber(expression[i]))
+				while (isNumber(_expression[i]))
 				{
-					std::string temp(1, expression[i]);
+					std::string temp(1, _expression[i]);
 					numTemp += temp;
 					i++;
 				}
@@ -112,7 +112,7 @@ private:
 			{
 				std::string currentOperator = "";
 				bool isPostFix = true;
-				std::string subStr = expression.substr(i, std::string::npos);
+				std::string subStr = _expression.substr(i, std::string::npos);
 				if (subStr.length()>=2&&
 					(
 						(subStr[0] == '>' && subStr[1] == '>') || 
@@ -147,7 +147,7 @@ private:
 
 				}
 				else {
-					currentOperator = expression[i];
+					currentOperator = _expression[i];
 				}
 
 				while ((stackExp.top() != "(") &&
@@ -185,10 +185,10 @@ private:
 		if (_operator == "~")
 			return ~b;
 		if (_operator == ">>") {
-			return b >> std::stoi(a->toString());
+			return b >> std::stoi(a->ToString());
 		}
 		if (_operator == "<<") {
-			return b << std::stoi(a->toString());
+			return b << std::stoi(a->ToString());
 		}
 		if (_operator == "&") {
 			return*a&b;
@@ -210,16 +210,25 @@ private:
 			return --b;
 		}
 		if (_operator == "ror") {
-			return b.ror(std::stoi(a->toString()));
+			return b.ror(std::stoi(a->ToString()));
 
 		}
 		if (_operator == "rol") {
-			return b.rol(std::stoi(a->toString()));
+			return b.rol(std::stoi(a->ToString()));
 		}
 
 	}
-	Qint calc()
+	void Solved() {
+
+		if (_mode == DEC) {
+			_result = calcQint();
+		}
+
+	}
+	std::string calcQint()
 	{
+		if (_expression == "") throw "Emty";
+
 		auto expression = convertInfixToPostfix();
 		PrintQueue(expression);
 		std::stack<Qint> s;
@@ -230,7 +239,7 @@ private:
 			if (!IsOperator(temp))
 			{
 				//Là số
-				Qint n(temp, false);
+				Qint n(temp,_mode == BIN);
 				s.push(n);
 				expression.pop();
 			}
@@ -265,44 +274,24 @@ private:
 
 			}
 		}
-		return s.top();
+		return s.top().ToString();
 	}
-	bool CheckValidInput() {
-
-		for (int i = 0; i < expression.length(); i++) {
-			auto _3chars = expression.substr(i, 3);
-			auto _2chars = expression.substr(i, 2);
-			auto _1char = expression.substr(i, 1);
-			
-			if (!IsContainAllowInput(_3chars) &&
-				!IsContainAllowInput(_2chars) &&
-				!IsContainAllowInput(_1char)) {
-				return false;
-			}
-
-			
-
-		}
-		
-		return true;
-
-	}
-	bool IsContainAllowInput(std::string  currentChar) {
+	static bool IsContainAllowedInput(std::string  currentChar,Mode mode) {
 		
 		std::vector<std::string> dec = 
 		{ "&", "|", "^", "~", "ror", "rol",">>",
 			"<<","(",")","%","÷","X","-","+",".","0","1","2","3","4","5","6","7","8","9"};
 		std::vector<std::string> hex = { "A","B","C","D","E","F" ,"0","1","2","3","4","5","6","7","8","9" };
-		std::vector<std::string> bin = {"<<",">>","+","-","X","÷","%","0","1","ror","rol","&","|","^","~"};
+		std::vector<std::string> bin = {"<<",">>","+","-","X","÷","%","0","1","ror","rol","&","|","^","~","2","3","4","5","6","7","8","9" };
 		std::vector<std::string> current;
 
-		if (_mode == DEC) {
+		if (mode == DEC) {
 			current = dec;
 		}
-		else if (_mode == BIN) {
+		else if (mode == BIN) {
 			current = bin;
 		}
-		else if (_mode == HEX) {
+		else if (mode == HEX) {
 			current = hex;
 			
 		}
@@ -316,8 +305,45 @@ private:
 	}
 public:
 	ExpressionProcessor(std::string input,Mode mode);
-	Qint GetResult() {
+	std::string GetResult() {
 		return _result;
+	}
+	static bool CheckValidInput(std::string expression,Mode mode) {
+		bool flag = true;
+		for (int i = 0; i < expression.length(); i++) {
+			auto _3chars = expression.substr(i, 3);
+			auto _2chars = expression.substr(i, 2);
+			auto _1char = expression.substr(i, 1);
+
+			if (!IsContainAllowedInput(_3chars,mode) &&
+				!IsContainAllowedInput(_2chars,mode) &&
+				!IsContainAllowedInput(_1char,mode)) {
+				return false;
+
+			}
+
+		}
+
+		if (mode == BIN) {
+			std::string pattern1 = "<<";
+			std::string pattern2 = ">>";
+			bool found = false;
+			for (int i = 0; i < expression.length(); i++) {
+				auto currentSubstr = expression.substr(i, 2);
+				if (currentSubstr == pattern1 || currentSubstr == pattern2) {
+					found = true;
+					break;
+				}
+				if (!found && '1'<expression[i]&& expression[i] <='9') {
+					return false;
+				}
+
+			}
+
+		}
+
+		return true;
+
 	}
 };
 

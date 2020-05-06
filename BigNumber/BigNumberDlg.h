@@ -1,10 +1,11 @@
-
+﻿
 // BigNumberDlg.h : header file
 //
 
 #pragma once
 
 #include <string>
+#include "Qint.h"
 enum Mode {
 	DEC,
 	HEX,
@@ -17,7 +18,7 @@ enum TypeInput {
 	OPEN_PARENTHESES,
 	DOT
 };
-enum TypeNumericMode {
+ enum TypeNumericMode {
 	QINT,
 	QFLOAT
 };
@@ -54,20 +55,35 @@ private:
 	CString result = _T("");
 	Mode exMode = DEC;
 	Mode resultMode = DEC;
-	TypeNumericMode typeNumericMode = QINT;
-<<<<<<< HEAD
+	TypeNumericMode dataTypeMode = QINT;
+
 	//For debug purpose
 
 	void Debug(std::string message) {
 		_cwprintf(_T("%s"), ConvertStringToCString(message));
 	}
-=======
->>>>>>> a73c2ba7e9dfd8dfeacff577d712020241f651ab
+	//D
+	std::string GetSolvedOuputBaseOnResultMode(Qint rawOutput) {
+		if (resultMode == DEC) {
+			return rawOutput.ToString();
+		}
+		else if (resultMode == BIN) {
 
+			return rawOutput.DecToBin(true);
+		}
+		else if (resultMode == HEX) {
+			return rawOutput.DecToHex();
+		}
+		return "";
+	}
 	private:
 		CString ConvertStringToCString(std::string input);
 		std::string ConvertCStringToString(CString cstring) ;
+		
+		//Bật tất cả các button ngoại trừ button data type
+
 		void EnableAllButton() {
+
 			BTN_EQUAL.EnableWindow(TRUE);
 			BTN_PLUS.EnableWindow(TRUE);;
 			BTN_SUBTRACT.EnableWindow(TRUE);;
@@ -163,7 +179,7 @@ private:
 			}
 			else if (type == OPERATOR) {
 				
-				if ((lastIndex == 1&&expression.GetAt(lastIndex) == '(') || lastIndex == 0) return false;
+				if ((lastIndex >= 1&&expression.GetAt(lastIndex) == '(') || lastIndex == 0) return false;
 
 			}
 			else if (type == CLOSE_PARENTHESES) {
@@ -193,6 +209,7 @@ private:
 			return true;
 	
 		}
+		void CalculateQInt();
 
 public:
 
@@ -226,15 +243,10 @@ public:
 	CButton BTN_C;
 	CButton BTN_E;
 	CButton BTN_F;
-
-	void MessageError() {
-		AfxMessageBox(_T("ERROR"), 0, 0);
-	}
-
 	CEdit EDT_Expression;
 	CEdit EDT_Result;
 	afx_msg void OnBnClickedEqual();
-	void CalculateQInt();
+
 	afx_msg void OnBnClicked1();
 	afx_msg void OnBnClicked2();
 	afx_msg void OnBnClicked3();
@@ -274,9 +286,7 @@ public:
 	CButton BTN_HEX_EX;
 	CButton BTN_BIN_EX;
 	afx_msg void OnBnClickedHexEx();
-	afx_msg void OnBnClickedBinEx();
-
-	
+	afx_msg void OnBnClickedBinEx();	
 	afx_msg void OnBnClickedDecRadioBtn();
 	afx_msg void OnBnClickedBinRadioBtn();
 	afx_msg void OnBnClickedHexRadioBtn();
@@ -285,4 +295,13 @@ public:
 	afx_msg void OnBnClickedQFloatMode();
 	CButton BTN_QintMode;
 	CButton BTN_QfloatMode;
+	CButton BTN_AND;
+	CButton BTN_OR;
+	CButton BTN_XOR;
+	CButton BTN_NOT;
+	CButton BTN_ROR;
+	CButton BTN_ROL;
+	CButton BTN_DEC_RADIO;
+	CButton BTN_BIN_RADIO;
+	CButton BTN_HEX_RADIO;
 };

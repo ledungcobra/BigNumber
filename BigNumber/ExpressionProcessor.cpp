@@ -15,14 +15,13 @@ ExpressionProcessor::ExpressionProcessor(std::string input,Mode mode)
 		input = input + ")";
 	}
 	try {
-		expression = input;
-		if (CheckValidInput() == false) {
+		_expression = input;
+		if (CheckValidInput(_expression,_mode) == false) {
 			throw "Invalid input";
 		}
-		_result = calc();
+		_result = calcQint();
 	}
 	catch (char* e) {
-
 		AfxMessageBox(_T("Invalid Input"), 0, 0);		
 		throw "Invalid input";
 	}
