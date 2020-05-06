@@ -1,4 +1,6 @@
-#pragma once
+﻿#pragma once
+#include <string>
+
 class Qfloat
 {
 private:
@@ -6,20 +8,25 @@ private:
 
 public:
 	Qfloat();
+	Qfloat(const std::string& numberOrBits, const bool& isBits = false);
 	~Qfloat();
 
 public:
-	//scan Qfloat fromt keyboard
-	void ScanQfloat(Qfloat& x);
+	//Nhập số thực Qfloat từ bàn phím
+	void ScanQfloat();
 
-	//print Qfloat on screen
-	void PrintQfloat(const Qfloat& x) const;
+	//In số thực Qfloat ra màn hình
+	void PrintQfloat() const;
 
-	//convert decimal to binary of Qfloat
-	//return a bit array of bool 
+	//Chuyển đổi thập phân sang nhị phân
+	//Trả về mảng bit ở dạng bool
 	bool* DecToBin(const Qfloat& x) const;
 
-	//convert binary to decimal of Qfloat
-	//return a Qfloat
-	Qfloat BinToDec(const bool* bit) const;
+	//Chuyển đổi nhị phân sang thập phân
+	//Trả về một số Qfloat
+	static Qfloat BinToDec(std::string bits);
+
+public:
+	friend std::ostream& operator<<(std::ostream& os, const Qfloat& dt);
+	friend std::istream& operator>>(std::istream& is, Qfloat& dt);
 };

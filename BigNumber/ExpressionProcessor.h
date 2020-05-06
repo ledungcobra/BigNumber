@@ -4,12 +4,14 @@
 #include <queue>
 #include <iostream>
 #include "Qint.h"
+#include "BigNumberDlg.h"
 
 class ExpressionProcessor
 {
 private:
 	std::string expression;
 	Qint _result;
+	Mode _mode;
 
 	int getPrioritize(std::string c)
 	{
@@ -48,7 +50,7 @@ private:
 			return false;
 	}
 
-	bool isOperator(std::string c)
+	bool IsOperator(std::string c)
 	{
 		if (
 			c == "rol" ||
@@ -71,7 +73,6 @@ private:
 			return true;
 		return false;
 	}
-
 	std::queue<std::string> convertInfixToPostfix()
 	{
 		std::stack<std::string> stackExp;
@@ -161,7 +162,7 @@ private:
 		}
 		return queueExp;
 	}
-	void printQueue(std::queue<std::string> q)
+	void PrintQueue(std::queue<std::string> q)
 	{
 		while (q.size() != 0)
 		{
@@ -169,94 +170,95 @@ private:
 			q.pop();
 		}
 	}
-	Qint simpleCalc(Qint a, Qint* b, std::string _operator)
+	Qint SimpleCalc(Qint *a, Qint b, std::string _operator)
 	{
 		if (_operator == "+")
-			return a + *b;
+			return b+ *a;
 		if (_operator == "-")
-			return  a - *b;
+			return  b-*a;
 		if (_operator == "X")
-			return a * *b;
+			return b**a;
 		if (_operator == "÷")
-			return a / *b;
+			return b/(*a);
 		if (_operator == "^")
-			return a ^ *b;
+			return b^*a;
 		if (_operator == "~")
-			return ~a;
+			return ~b;
 		if (_operator == ">>") {
-			return a >> std::stoi(b->toString());
+			return b >> std::stoi(a->toString());
 		}
 		if (_operator == "<<") {
-			return a << std::stoi(b->toString());
+			return b << std::stoi(a->toString());
 		}
 		if (_operator == "&") {
-			return a & *b;
+			return*a&b;
 		}
 		if (_operator == "|") {
-			return a | *b;
+			return *a | b;
 		}
-		if (_operator == "^") {
-			return a ^ *b;
-		}
+		
 		if (_operator == "x++") {
-			return a++;
+			return b++;
 		}
 		if (_operator == "x--") {
-			return a--;
+			return b++;
 		}
 		if (_operator == "++x") {
-			return ++a;
+			return ++b;
 		}
 		if (_operator == "--x") {
-			return --a;
+			return --b;
 		}
 		if (_operator == "ror") {
-			return a.ror(std::stoi(b->toString()));
+			return b.ror(std::stoi(a->toString()));
 
 		}
 		if (_operator == "rol") {
-			return a.rol(std::stoi(b->toString()));
+			return b.rol(std::stoi(a->toString()));
 		}
 
 	}
 	Qint calc()
 	{
 		auto expression = convertInfixToPostfix();
-		printQueue(expression);
+		PrintQueue(expression);
 		std::stack<Qint> s;
 		std::string temp;
 		while (!expression.empty())
 		{
 			temp = expression.front();
-			if (!isOperator(temp))
+			if (!IsOperator(temp))
 			{
 				//Là số
-				Qint n(temp);
+				Qint n(temp, false);
 				s.push(n);
 				expression.pop();
 			}
 			else
 			{
-				Qint a;
-				Qint b;
+				
 				if (temp == "~" ||
 					temp == "x++" ||
 					temp == "x--" ||
 					temp == "++x" ||
 					temp == "--x" 
 					) {
-					a = s.top();
+				
+					Qint b;
+					b = s.top();
 					s.pop();
-					auto result = simpleCalc(a, NULL, temp);
+					auto result = SimpleCalc(NULL, b, temp);
 					s.push(result);
 					expression.pop();
 				}
 				else {
+					Qint a;
+					Qint b;
 					a = s.top();
 					s.pop();
 					b = s.top();
 					s.pop();
-					Qint result = simpleCalc(a, &b, temp);
+					Qint result = SimpleCalc(&a, b, temp);
 					s.push(result);
 					expression.pop();
 				}
@@ -265,8 +267,55 @@ private:
 		}
 		return s.top();
 	}
+	bool CheckValidInput() {
+
+		for (int i = 0; i < expression.length(); i++) {
+			auto _3chars = expression.substr(i, 3);
+			auto _2chars = expression.substr(i, 2);
+			auto _1char = expression.substr(i, 1);
+			
+			if (!IsContainAllowInput(_3chars) &&
+				!IsContainAllowInput(_2chars) &&
+				!IsContainAllowInput(_1char)) {
+				return false;
+			}
+
+			
+
+		}
+		
+		return true;
+
+	}
+	bool IsContainAllowInput(std::string  currentChar) {
+		
+		std::vector<std::string> dec = 
+		{ "&", "|", "^", "~", "ror", "rol",">>",
+			"<<","(",")","%","÷","X","-","+",".","0","1","2","3","4","5","6","7","8","9"};
+		std::vector<std::string> hex = { "A","B","C","D","E","F" ,"0","1","2","3","4","5","6","7","8","9" };
+		std::vector<std::string> bin = {"<<",">>","+","-","X","÷","%","0","1","ror","rol","&","|","^","~"};
+		std::vector<std::string> current;
+
+		if (_mode == DEC) {
+			current = dec;
+		}
+		else if (_mode == BIN) {
+			current = bin;
+		}
+		else if (_mode == HEX) {
+			current = hex;
+			
+		}
+		for (auto i : current) {
+			if (i == currentChar)
+				return true;
+		}
+		return false;
+
+
+	}
 public:
-	ExpressionProcessor(std::string input);
+	ExpressionProcessor(std::string input,Mode mode);
 	Qint GetResult() {
 		return _result;
 	}

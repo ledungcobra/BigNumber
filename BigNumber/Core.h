@@ -1,0 +1,10 @@
+#pragma once
+
+#define MAX_CELL 16
+#define BITS_OF_CELL 8
+
+#define NUM_OF_SIGNIFICANT_BITS 112
+#define NUM_OF_EXPONENT_BITS 15
+
+#define EXPONENT_BIAS 16383
+#define MAX_EXPONENT 16383

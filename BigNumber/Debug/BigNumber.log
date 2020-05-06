@@ -1,3 +1,12 @@
 ﻿  BigNumberDlg.cpp
-C:\Users\ledun\Desktop\BigNumber\BigNumber\ExpressionProcessor.h(82,21): warning C4018: '<': signed/unsigned mismatch
+C:\Users\ledun\Desktop\BigNumber\BigNumber\ExpressionProcessor.h(83,21): warning C4018: '<': signed/unsigned mismatch
+C:\Users\ledun\Desktop\BigNumber\BigNumber\ExpressionProcessor.h(272,21): warning C4018: '<': signed/unsigned mismatch
+C:\Users\ledun\Desktop\BigNumber\BigNumber\BigNumberDlg.cpp(324,16): warning C4101: 'e': unreferenced local variable
+  ExpressionProcessor.cpp
+C:\Users\ledun\Desktop\BigNumber\BigNumber\ExpressionProcessor.h(83,21): warning C4018: '<': signed/unsigned mismatch
+C:\Users\ledun\Desktop\BigNumber\BigNumber\ExpressionProcessor.h(272,21): warning C4018: '<': signed/unsigned mismatch
+C:\Users\ledun\Desktop\BigNumber\BigNumber\ExpressionProcessor.cpp(10,20): warning C4018: '<': signed/unsigned mismatch
+C:\Users\ledun\Desktop\BigNumber\BigNumber\ExpressionProcessor.cpp(24,15): warning C4101: 'e': unreferenced local variable
+  Generating Code...
+C:\Users\ledun\Desktop\BigNumber\BigNumber\ExpressionProcessor.h(220): warning C4715: 'ExpressionProcessor::SimpleCalc': not all control paths return a value
   BigNumber.vcxproj -> C:\Users\ledun\Desktop\BigNumber\Debug\BigNumber.exe
