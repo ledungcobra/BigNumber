@@ -17,6 +17,10 @@ enum TypeInput {
 	OPEN_PARENTHESES,
 	DOT
 };
+enum TypeNumericMode {
+	QINT,
+	QFLOAT
+};
 // CBigNumberDlg dialog
 class CBigNumberDlg : public CDialogEx
 {
@@ -45,10 +49,12 @@ protected:
 	DECLARE_MESSAGE_MAP()
 
 private:
+	//DEFINE MEMBER
 	CString expression = _T("");
 	CString result = _T("");
 	Mode exMode = DEC;
 	Mode resultMode = DEC;
+	TypeNumericMode typeNumericMode = QINT;
 
 	private:
 		CString ConvertStringToCString(std::string input);
@@ -98,6 +104,8 @@ private:
 			BTN_C.EnableWindow(FALSE);
 			BTN_E.EnableWindow(FALSE);
 			BTN_F.EnableWindow(FALSE);
+			BTN_DOT.EnableWindow(FALSE);
+
 			
 		}
 		void OnBinMode() {
@@ -211,10 +219,14 @@ public:
 	CButton BTN_E;
 	CButton BTN_F;
 
+	void MessageError() {
+		AfxMessageBox(_T("ERROR"), 0, 0);
+	}
+
 	CEdit EDT_Expression;
 	CEdit EDT_Result;
 	afx_msg void OnBnClickedEqual();
-	void UpdateModeUI();
+	void CalculateQInt();
 	afx_msg void OnBnClicked1();
 	afx_msg void OnBnClicked2();
 	afx_msg void OnBnClicked3();
@@ -261,4 +273,8 @@ public:
 	afx_msg void OnBnClickedBinRadioBtn();
 	afx_msg void OnBnClickedHexRadioBtn();
 	afx_msg void OnChangeInput();
+	afx_msg void OnBnClickedQintMode();
+	afx_msg void OnBnClickedQFloatMode();
+	CButton BTN_QintMode;
+	CButton BTN_QfloatMode;
 };

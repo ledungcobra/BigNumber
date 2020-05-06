@@ -98,6 +98,8 @@ void CBigNumberDlg::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_BUTTON42, BTN_DEC_EX);
 	DDX_Control(pDX, IDC_BUTTON43, BTN_HEX_EX);
 	DDX_Control(pDX, IDC_BUTTON44, BTN_BIN_EX);
+	DDX_Control(pDX, IDC_BUTTON1, BTN_QintMode);
+	DDX_Control(pDX, IDC_BUTTON2, BTN_QfloatMode);
 }
 
 BEGIN_MESSAGE_MAP(CBigNumberDlg, CDialogEx)
@@ -150,6 +152,8 @@ BEGIN_MESSAGE_MAP(CBigNumberDlg, CDialogEx)
 	ON_BN_CLICKED(IDC_RADIO6, &CBigNumberDlg::OnBnClickedBinRadioBtn)
 	ON_BN_CLICKED(IDC_RADIO7, &CBigNumberDlg::OnBnClickedHexRadioBtn)
 	ON_EN_CHANGE(AFX_ID_PREVIEW_NUMPAGE, &CBigNumberDlg::OnChangeInput)
+	ON_BN_CLICKED(IDC_BUTTON1, &CBigNumberDlg::OnBnClickedQintMode)
+	ON_BN_CLICKED(IDC_BUTTON2, &CBigNumberDlg::OnBnClickedQFloatMode)
 END_MESSAGE_MAP()
 
 
@@ -255,18 +259,31 @@ std::string CBigNumberDlg::ConvertCStringToString(CString cstring)
 
 void CBigNumberDlg::UpdateUI()
 {
-	EDT_Expression.SetWindowTextW(expression);
-	EDT_Result.SetWindowTextW(result);
+	if (typeNumericMode == QINT) {
 
-	if (exMode == HEX) {
-		OnHexMode();
+
+
+		EDT_Expression.SetWindowTextW(expression);
+		EDT_Result.SetWindowTextW(result);
+
+		if (exMode == HEX) {
+			OnHexMode();
+		}
+		else if (exMode == DEC) {
+			OnDecMode();
+		}
+		else if (exMode == BIN) {
+			OnBinMode();
+		}
+
 	}
-	else if (exMode == DEC) {
-		OnDecMode();
+	else {
+
+		exMode = DEC;
+		resultMode = DEC;
+
 	}
-	else if(exMode == BIN) {
-		OnBinMode();
-	}
+	
 };
 
 
@@ -275,44 +292,68 @@ void CBigNumberDlg::UpdateUI()
 void CBigNumberDlg::OnBnClickedEqual()
 {
 	EDT_Expression.GetWindowTextW(expression);
-	UpdateModeUI();
+	if (typeNumericMode == QINT) {
+		CalculateQInt();
+		expression = result;
+
+	}
+	else if(typeNumericMode == QFLOAT){
+		//DO:
+		//->DEC MODE
+		//-> BIN MODE
+	}
+	UpdateUI();
 
 	
 }
 
-void CBigNumberDlg::UpdateModeUI()
+void CBigNumberDlg::CalculateQInt()
 {
-
+	
 	if (exMode == DEC) {
+		//Call User click =
+		bool invalidInput = false;
+		std::string resultInString;
 
-		ExpressionProcessor expressHandle(ConvertCStringToString(expression));
-		result = ConvertStringToCString(expressHandle.GetResult().toString());
-		
-
-		if (DEC == resultMode) {
+		try {
+			ExpressionProcessor expressHandle(ConvertCStringToString(expression), exMode);
 			result = ConvertStringToCString(expressHandle.GetResult().toString());
-		}
-		else if (HEX == resultMode) {
-			Qint resultQint(expressHandle.GetResult());
-			result = ConvertStringToCString(resultQint.DecToHex());
-		}
-		else if (BIN == resultMode) {
-			Qint resultQint(expressHandle.GetResult());
-			std::string resultBin = "";
-			
-			for (int i = 0; i < 128; i++) {
-				resultBin += resultQint.DecToBin()[i] ? '1' : '0';
-			
-			}
-			
-			result = ConvertStringToCString(resultBin);
-			for (int i = 0; i < result.GetLength(); i++) {
-				if (i != 0 && i % 81 == 0) {
-					result.Insert(i, _T("\r\n"));
-				}
-			}
+			resultInString = expressHandle.GetResult().toString();
 
 		}
+		catch (char* e) {
+			result = "0";
+			invalidInput = true;
+		}
+	
+		if (invalidInput == false) {
+			if (DEC == resultMode) {
+				result = ConvertStringToCString(resultInString);
+			}
+			else if (HEX == resultMode) {
+				Qint resultQint(resultInString);
+				result = ConvertStringToCString(resultQint.DecToHex());
+			}
+			else if (BIN == resultMode) {
+				Qint resultQint(resultInString);
+				std::string resultBin = "";
+
+				for (int i = 0; i < 128; i++) {
+					resultBin += resultQint.DecToBin()[i] ? '1' : '0';
+
+				}
+
+				result = ConvertStringToCString(resultBin);
+				for (int i = 0; i < result.GetLength(); i++) {
+					if (i != 0 && i % 81 == 0) {
+						result.Insert(i, _T("\r\n"));
+					}
+				}
+
+			}
+		}
+
+		
 		
 	}
 	else if(exMode == BIN){
@@ -350,7 +391,7 @@ void CBigNumberDlg::UpdateModeUI()
 			result = expression;
 		}
 	}
-	UpdateUI();
+	
 
 }
 
@@ -668,29 +709,37 @@ void CBigNumberDlg::OnBnClickedBinEx()
 void CBigNumberDlg::OnBnClickedDecRadioBtn()
 {
 	resultMode = DEC;
-	UpdateModeUI();
+	CalculateQInt();
 }
 
 
 void CBigNumberDlg::OnBnClickedBinRadioBtn()
 {
 	resultMode = BIN;
-	UpdateModeUI();
+	CalculateQInt();
 }
 
 
 void CBigNumberDlg::OnBnClickedHexRadioBtn()
 {
 	resultMode = HEX;
-	UpdateModeUI();
+	CalculateQInt();
 }
 
 
 void CBigNumberDlg::OnChangeInput()
 {
 	EDT_Expression.GetWindowTextW(expression);
-	if (exMode == BIN) {
-		int last = expression.GetLength() - 1;
-		
-	}
+}
+
+
+void CBigNumberDlg::OnBnClickedQintMode()
+{
+	// TODO: Add your control notification handler code here
+}
+
+
+void CBigNumberDlg::OnBnClickedQFloatMode()
+{
+	// TODO: Add your control notification handler code here
 }
