@@ -381,6 +381,7 @@ void CBigNumberDlg::CalculateQInt()
 
 		}
 		
+<<<<<<< HEAD
 	}
 	else if (exMode == HEX) {
 	
@@ -394,6 +395,21 @@ void CBigNumberDlg::CalculateQInt()
 			result = expression;
 		}
 	}
+=======
+	}
+	else if (exMode == HEX) {
+	
+		if (resultMode == DEC) {
+			//CHUA
+		}
+		else if (resultMode == BIN) {
+			//CHUA
+		}
+		else if(resultMode == HEX) {
+			result = expression;
+		}
+	}
+>>>>>>> a73c2ba7e9dfd8dfeacff577d712020241f651ab
 	
 
 }

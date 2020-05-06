@@ -55,11 +55,14 @@ private:
 	Mode exMode = DEC;
 	Mode resultMode = DEC;
 	TypeNumericMode typeNumericMode = QINT;
+<<<<<<< HEAD
 	//For debug purpose
 
 	void Debug(std::string message) {
 		_cwprintf(_T("%s"), ConvertStringToCString(message));
 	}
+=======
+>>>>>>> a73c2ba7e9dfd8dfeacff577d712020241f651ab
 
 	private:
 		CString ConvertStringToCString(std::string input);
