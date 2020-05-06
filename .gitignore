@@ -13,7 +13,7 @@
 
 #Visual Studio Code files
 .vscode
-
+.vs
 #Solution and Project files
 *.sln
 *.vcxproj
