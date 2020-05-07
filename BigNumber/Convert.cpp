@@ -208,13 +208,13 @@ std::string Convert::ConvertFloatToBin(std::string floatNum)
 
 	unsigned int countBitBeforeOne = 0;
 	unsigned int firstPosOfDot = floatNum.find_first_of('.', 0);
-
+	//Khong tim dc
 	if (firstPosOfDot == std::string::npos)
 	{
 		floatNum += ".0";
 		firstPosOfDot = floatNum.length() - 2;
 	}
-
+	
 	std::string intPart = floatNum.substr(index, firstPosOfDot - index);
 
 	unsigned int firstPosDecPartNotOfZero = intPart.find_first_not_of('0', 0);
@@ -223,11 +223,14 @@ std::string Convert::ConvertFloatToBin(std::string floatNum)
 	{
 		intPart = "0";
 	}
+	else {
+		
 
-	if (firstPosDecPartNotOfZero != std::string::npos)
-	{
 		intPart = intPart.substr(firstPosDecPartNotOfZero, intPart.length() - firstPosDecPartNotOfZero);
+
 	}
+
+
 
 	if (intPart != "0")
 	{

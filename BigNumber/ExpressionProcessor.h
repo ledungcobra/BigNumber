@@ -308,7 +308,7 @@ public:
 		return true;
 
 	}
-	static bool CheckValidInput(std::string expression,Mode mode) {
+	static bool CheckValidInput(std::string expression,Mode mode,DataTypeMode typeNumber) {
 
 		
 		std::string modifiedExpression = "";
@@ -320,22 +320,27 @@ public:
 		modifiedExpression = '(' + modifiedExpression;
 		modifiedExpression += ')';
 		std::regex pattern;
+		if (typeNumber == QINT) {
+			if (mode == Mode::DEC) {
+				if (!CheckValidBacket(expression)) {
+					return false;
+				}
+				pattern = "^\\(((\\+{0,2}|\\-{0,2}|~)?\\d+(\\+{2}|\\-{2}|~)?((\\+|\\-|X|÷|&|\\||^|ror|rol|>>|<<)(?=((\\+{0,2}|\\-{0,2}|~)?\\d+(\\+{2}|\\-{2}|~)?)))?)+\\)$";
 
-		if (mode ==Mode::DEC) {
-			if (!CheckValidBacket(expression)) {
-				return false;
+				//pattern = "^\\(((\\+{0,2}|\\-{0,2}|~)?\\d+(\\+{0,2}|\\-{0,2}|~)?(\\+|\\-|X|÷|&|\\||^|ror|rol|>>|<<)?)+\\)$";	
 			}
-			pattern = "^\\(((\\+{0,2}|\\-{0,2}|~)?\\d+(\\+{2}|\\-{2}|~)?((\\+|\\-|X|÷|&|\\||^|ror|rol|>>|<<)(?=((\\+{0,2}|\\-{0,2}|~)?\\d+(\\+{2}|\\-{2}|~)?)))?)+\\)$";
+			else if (mode == Mode::BIN) {
+				pattern = "^\\((~?[0-1]+((\\+|\\-|\\X|÷|&|\\||>>|<<|^|~|ror|rol)(?=~?[0-1]+))?)+\\)$";
+			}
+			else if (Mode::HEX == mode) {
+				pattern = "^\\(([0-9A-Fa-f]+)\\)$";
+			}
 
-			//pattern = "^\\(((\\+{0,2}|\\-{0,2}|~)?\\d+(\\+{0,2}|\\-{0,2}|~)?(\\+|\\-|X|÷|&|\\||^|ror|rol|>>|<<)?)+\\)$";	
 		}
-		else if (mode == Mode::BIN) {	
-			pattern = "^\\((~?[0-1]+((\\+|\\-|\\X|÷|&|\\||>>|<<|^|~|ror|rol)(?=~?[0-1]+))?)+\\)$";
+		else if (typeNumber == QFLOAT) {
+			pattern = "^\\(\\d+(\\.\\d+)?\\)$";
 		}
-		else if (Mode::HEX == mode) {
-			pattern = "^\\(([0-9A-Fa-f]+)\\)$";
-		}
-
+		
 		
 		std::regex_iterator<std::string::iterator> rit(modifiedExpression.begin(), modifiedExpression.end(), pattern);
 		std::regex_iterator<std::string::iterator> rend;

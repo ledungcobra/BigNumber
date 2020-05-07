@@ -263,7 +263,33 @@ HCURSOR CBigNumberDlg::OnQueryDragIcon()
 void CBigNumberDlg::CalculateQFloat()
 {
 
+	
+	auto input = ConvertCStringToString(expression);
+	
+	auto i = input.find(")");
+	if (i != std::string::npos) {
+		input.erase(i, 1);
+	}
+	
+	i = input.find("(");
 
+	if (i != std::string::npos) {
+		input.erase(i, 1);
+	}
+	
+
+	if (ExpressionProcessor::CheckValidInput(input, DEC, QFLOAT)) {
+
+		Qfloat qfloat(input);
+		result = ConvertStringToCString(GetSolvedOuputBasedOnResultMode(qfloat));
+
+	}
+	else {
+		ShowErrorDialog("Check your input");
+	}
+
+	
+	UpdateUI();
 
 }
 
@@ -294,19 +320,7 @@ void CBigNumberDlg::UpdateUI()
 		}
 
 	}
-	else {
 
-		exMode = DEC;
-		resultMode = DEC;
-		Qfloat a("1.10110",resultMode == BIN);
-		std::stringstream s;
-		s << a;
-
-		result = ConvertStringToCString(s.str());
-		
-
-
-	}
 	EDT_Expression.SetWindowTextW(expression);
 	EDT_Result.SetWindowTextW(result);
 
@@ -326,9 +340,6 @@ void CBigNumberDlg::OnBnClickedEqual()
 		CalculateQInt();
 	}
 	else if(dataTypeMode == QFLOAT){
-		//DO:
-		//->DEC MODE
-		//-> BIN MODE
 		CalculateQFloat();
 
 	}
@@ -342,7 +353,7 @@ void CBigNumberDlg::CalculateQInt()
 	
 	
 	 if (exMode == HEX) {
-		 if (!ExpressionProcessor::CheckValidInput(ConvertCStringToString(expression), exMode)) {
+		 if (!ExpressionProcessor::CheckValidInput(ConvertCStringToString(expression), exMode,QINT)) {
 			 ShowErrorDialog("Something wrong with your input check it out!!");
 		 }
 		 else {
@@ -548,7 +559,7 @@ void CBigNumberDlg::OnBnClickedShiftRight()
 	}
 	else if (exMode == BIN) {
 		if (ExpressionProcessor::
-			CheckValidInput(ConvertCStringToString(expression), exMode)) {
+			CheckValidInput(ConvertCStringToString(expression), exMode,QINT)) {
 			
 			Qint output = Qint(ConvertCStringToString(expression),true)>>1;
 			result = ConvertStringToCString(GetSolvedOuputBasedOnResultMode(output));
@@ -572,7 +583,7 @@ void CBigNumberDlg::OnBnClickedShiftLeft()
 	else if (exMode == BIN) {
 
 		if (ExpressionProcessor::
-			CheckValidInput(ConvertCStringToString(expression), exMode)) {
+			CheckValidInput(ConvertCStringToString(expression), exMode,QINT)) {
 			Qint output = Qint(ConvertCStringToString(expression),true) << 1;
 
 			result = ConvertStringToCString(
@@ -744,20 +755,36 @@ void CBigNumberDlg::OnBnClickedBinEx()
 
 void CBigNumberDlg::OnBnClickedDecRadioBtn()
 {
-
 	resultMode = DEC;
-	if (expression != "")
-		CalculateQInt();
+	if (dataTypeMode == QINT) {
+	
+		if (expression != "")
+			CalculateQInt();
+	}
+	else if(dataTypeMode == QFLOAT){
+		if (expression != "") {
+			CalculateQFloat();
+		}
+	}
+	
 	UpdateUI();
 }
 
 
 void CBigNumberDlg::OnBnClickedBinRadioBtn()
 {
-	
 	resultMode = BIN;
-	if (expression != "") 
-		CalculateQInt();
+	if (dataTypeMode == QINT) {
+	
+		if (expression != "")
+			CalculateQInt();
+	}
+	else {
+		if (expression != "") {
+			CalculateQFloat();
+		}
+	}
+	
 	UpdateUI();
 }
 
@@ -765,9 +792,17 @@ void CBigNumberDlg::OnBnClickedBinRadioBtn()
 void CBigNumberDlg::OnBnClickedHexRadioBtn()
 {
 	
-	resultMode = HEX;
-	if (expression != "")
-		CalculateQInt();
+	if (dataTypeMode == QINT) {
+		resultMode = HEX;
+		if (expression != "")
+			CalculateQInt();
+	}
+	else if(dataTypeMode == QFLOAT){
+		if (expression != "") {
+			CalculateQFloat();
+		}
+	}
+	
 	UpdateUI();
 }
 

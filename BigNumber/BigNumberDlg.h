@@ -6,6 +6,8 @@
 
 #include <string>
 #include "Qint.h"
+#include "Qfloat.h"
+#include <sstream>
 enum  Mode {
 	DEC,
 	HEX,
@@ -18,7 +20,7 @@ enum TypeInput {
 	OPEN_PARENTHESES,
 	DOT
 };
- enum  TypeNumericMode {
+ enum  DataTypeMode {
 	QINT,
 	QFLOAT
 };
@@ -55,7 +57,7 @@ private:
 	CString result = _T("");
 	Mode exMode = Mode::DEC;
 	Mode resultMode = Mode::DEC;
-	TypeNumericMode dataTypeMode = TypeNumericMode::QINT;
+	DataTypeMode dataTypeMode = DataTypeMode::QINT;
 
 	void CalculateQFloat();
 
@@ -65,9 +67,9 @@ private:
 		_cwprintf(_T("%s"), ConvertStringToCString(message));
 	}
 	//D
-	template<class T>
-	std::string GetSolvedOuputBasedOnResultMode(T rawOutput) {
-		if (dataTypeMode == QINT &&typeid(T).name() == "Qint") {
+	
+	std::string GetSolvedOuputBasedOnResultMode(Qint rawOutput) {
+		if (dataTypeMode == QINT ) {
 
 			if (resultMode == Mode::DEC) {
 				return rawOutput.ToString();
@@ -93,7 +95,7 @@ private:
 			
 
 		}
-		else if (dataTypeMode == QFLOAT &&typeid(T).name() == "Qfloat") {
+		else if (dataTypeMode == QFLOAT) {
 			
 			if (resultMode == DEC) {	
 
@@ -115,7 +117,29 @@ private:
 		}
 		
 	}
+	std::string GetSolvedOuputBasedOnResultMode(Qfloat rawOutput) {
+		if (dataTypeMode == QFLOAT) {
 
+			if (resultMode == DEC) {
+
+				std::stringstream out;
+				out << rawOutput;
+				return out.str();
+
+			}
+			else if (resultMode == BIN) {
+				std::string result = "";
+				bool* bits = rawOutput.DecToBin(rawOutput);
+
+				for (int i = 0; i < 128; i++) {
+					result += bits[i] ? '1' : '0';
+				}
+				return result;
+			}
+
+		}
+
+	}
 	void ShowErrorDialog(std::string message) {
 
 		AfxMessageBox((ConvertStringToCString(message)));

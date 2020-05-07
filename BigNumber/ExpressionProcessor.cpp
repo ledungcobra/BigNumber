@@ -16,7 +16,7 @@ ExpressionProcessor::ExpressionProcessor(std::string input,Mode mode)
 	}
 	try {
 		_expression = input;
-		if (CheckValidInput(_expression,_mode) == false) {
+		if (CheckValidInput(_expression,_mode,QINT) == false) {
 			throw "Invalid input";
 			return;
 		}
