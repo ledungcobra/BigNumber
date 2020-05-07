@@ -87,7 +87,6 @@ void CBigNumberDlg::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_BUTTON18, BTN_7);
 	DDX_Control(pDX, IDC_BUTTON23, BTN_4);
 	DDX_Control(pDX, IDC_BUTTON28, BTN_1);
-	DDX_Control(pDX, IDC_BUTTON33, BTN_POS_OR_NEGATIVE);
 	DDX_Control(pDX, IDC_BUTTON7, BTN_A);
 	DDX_Control(pDX, IDC_BUTTON12, BTN_B);
 	DDX_Control(pDX, IDC_BUTTON22, BTN_D);
@@ -139,7 +138,6 @@ BEGIN_MESSAGE_MAP(CBigNumberDlg, CDialogEx)
 	ON_BN_CLICKED(IDC_BUTTON8, &CBigNumberDlg::OnBnClickedShiftLeft)
 	ON_BN_CLICKED(IDC_BUTTON14, &CBigNumberDlg::OnBnClickedCloseParentheses)
 	ON_BN_CLICKED(IDC_BUTTON13, &CBigNumberDlg::OnBnClickedOpenParentheses)
-	ON_BN_CLICKED(IDC_BUTTON33, &CBigNumberDlg::OnBnClickedPosOrNegative)
 	ON_BN_CLICKED(IDC_BUTTON32, &CBigNumberDlg::OnBnClickedF)
 	ON_BN_CLICKED(IDC_BUTTON27, &CBigNumberDlg::OnBnClickedE)
 	ON_BN_CLICKED(IDC_BUTTON22, &CBigNumberDlg::OnBnClickedD)
@@ -596,13 +594,13 @@ void CBigNumberDlg::OnBnClickedOpenParentheses()
 }
 
 
-void CBigNumberDlg::OnBnClickedPosOrNegative()
-{
-	expression.Insert(0, _T("-("));
-	expression.Insert(expression.GetLength(), _T(")"));
-	UpdateUI();
-
-}
+//void CBigNumberDlg::OnBnClickedPosOrNegative()
+//{
+//	expression.Insert(0, _T("-("));
+//	expression.Insert(expression.GetLength(), _T(")"));
+//	UpdateUI();
+//
+//}
 
 
 void CBigNumberDlg::OnBnClickedF()

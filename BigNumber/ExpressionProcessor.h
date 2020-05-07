@@ -235,7 +235,7 @@ private:
 			if (!IsOperator(temp))
 			{
 				//Là số
-				Qint n(temp,_mode == BIN);
+				Qint n(temp,_mode == Mode::BIN);
 				s.push(n);
 				expression.pop();
 			}
@@ -321,16 +321,18 @@ public:
 		modifiedExpression += ')';
 		std::regex pattern;
 
-		if (mode == DEC) {
+		if (mode ==Mode::DEC) {
 			if (!CheckValidBacket(expression)) {
 				return false;
 			}
-			pattern = "^\\(((\\+{0,2}|\\-{0,2}|~)?\\d+(\\+{0,2}|\\-{0,2}|~)?(\\+|\\-|X|÷|&|\\||^|ror|rol|>>|<<)?)+\\)$";	
+			pattern = "^\\(((\\+{0,2}|\\-{0,2}|~)?\\d+(\\+{2}|\\-{2}|~)?((\\+|\\-|X|÷|&|\\||^|ror|rol|>>|<<)(?=((\\+{0,2}|\\-{0,2}|~)?\\d+(\\+{2}|\\-{2}|~)?)))?)+\\)$";
+
+			//pattern = "^\\(((\\+{0,2}|\\-{0,2}|~)?\\d+(\\+{0,2}|\\-{0,2}|~)?(\\+|\\-|X|÷|&|\\||^|ror|rol|>>|<<)?)+\\)$";	
 		}
-		else if (mode == BIN) {	
-			pattern = "^\\(        \\)$";
+		else if (mode == Mode::BIN) {	
+			pattern = "^\\((~?[0-1]+((\\+|\\-|\\X|÷|&|\\||>>|<<|^|~|ror|rol)(?=~?[0-1]+))?)+\\)$";
 		}
-		else if (HEX == mode) {
+		else if (Mode::HEX == mode) {
 			pattern = "^\\(([0-9A-Fa-f]+)\\)$";
 		}
 

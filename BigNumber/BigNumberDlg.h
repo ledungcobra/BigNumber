@@ -6,19 +6,19 @@
 
 #include <string>
 #include "Qint.h"
-enum class Mode {
+enum  Mode {
 	DEC,
 	HEX,
 	BIN
 };
-enum class TypeInput {
+enum TypeInput {
 	NUMBER,
 	OPERATOR,
 	CLOSE_PARENTHESES,
 	OPEN_PARENTHESES,
 	DOT
 };
- enum class TypeNumericMode {
+ enum  TypeNumericMode {
 	QINT,
 	QFLOAT
 };
@@ -53,9 +53,9 @@ private:
 	//DEFINE MEMBER
 	CString expression = _T("");
 	CString result = _T("");
-	Mode exMode = DEC;
-	Mode resultMode = DEC;
-	TypeNumericMode dataTypeMode = QINT;
+	Mode exMode = Mode::DEC;
+	Mode resultMode = Mode::DEC;
+	TypeNumericMode dataTypeMode = TypeNumericMode::QINT;
 
 	//For debug purpose
 
@@ -65,10 +65,10 @@ private:
 	//D
 	std::string GetSolvedOuputBasedOnResultMode(Qint rawOutput) {
 		
-		if (resultMode == DEC) {
+		if (resultMode == Mode::DEC) {
 			return rawOutput.ToString();
 		}
-		else if (resultMode == BIN) {
+		else if (resultMode ==Mode:: BIN) {
 			std::string temp = rawOutput.DecToBin(true);
 			std::string formatedResult = "";
 			for (int i = 0; i < temp.length(); i++) {
@@ -82,7 +82,7 @@ private:
 
 			return formatedResult;
 		}
-		else if (resultMode == HEX) {
+		else if (resultMode ==Mode:: HEX) {
 
 			return rawOutput.DecToHex();
 		}
@@ -125,7 +125,7 @@ private:
 			BTN_7.EnableWindow(TRUE);
 			BTN_4.EnableWindow(TRUE);
 			BTN_1.EnableWindow(TRUE);
-			BTN_POS_OR_NEGATIVE.EnableWindow(TRUE);;
+			
 			BTN_A.EnableWindow(TRUE);
 			BTN_B.EnableWindow(TRUE);
 			BTN_D.EnableWindow(TRUE);
@@ -146,7 +146,7 @@ private:
 			BTN_PERCENT.EnableWindow(0);
 			BTN_SHIFT_LEFT.EnableWindow(0);
 			BTN_SHIFT_RIGHT.EnableWindow(0);
-			BTN_POS_OR_NEGATIVE.EnableWindow(0);
+		
 			BTN_OPEN_PARETHESES.EnableWindow(0);
 			BTN_CLOSE_PARENTHESES.EnableWindow(0);
 			BTN_XOR.EnableWindow(0);
@@ -194,7 +194,6 @@ private:
 			BTN_7.EnableWindow(FALSE);
 			BTN_4.EnableWindow(FALSE);
 			BTN_1.EnableWindow(TRUE);
-			BTN_POS_OR_NEGATIVE.EnableWindow(TRUE);;
 			BTN_A.EnableWindow(FALSE);
 			BTN_B.EnableWindow(FALSE);
 			BTN_D.EnableWindow(FALSE);
@@ -210,17 +209,17 @@ private:
 		bool CheckValidInput(TypeInput type) {
 			int lastIndex = expression.GetLength() - 1;
 
-			if (type == NUMBER) {
+			if (type ==TypeInput:: NUMBER) {
 
 				if (lastIndex >= 0 && expression.GetAt(lastIndex) == ')') return false;
 
 			}
-			else if (type == OPERATOR) {
+			else if (type ==TypeInput:: OPERATOR) {
 				
 				if ((lastIndex >= 1&&expression.GetAt(lastIndex) == '(') || lastIndex == 0) return false;
 
 			}
-			else if (type == CLOSE_PARENTHESES) {
+			else if (type ==TypeInput:: CLOSE_PARENTHESES) {
 
 				int countClose = 0;
 				int countOpen = 0;
@@ -234,7 +233,7 @@ private:
 				}
 
 			}
-			else if (type == DOT) {
+			else if (type ==TypeInput:: DOT) {
 				auto lastChar = expression.GetAt(lastIndex);
 				if (lastChar == ')' ||
 					lastChar == '>'||
@@ -274,7 +273,6 @@ public:
 	CButton BTN_7;
 	CButton BTN_4;
 	CButton BTN_1;
-	CButton BTN_POS_OR_NEGATIVE;
 	CButton BTN_A;
 	CButton BTN_B;
 	CButton BTN_D;
@@ -306,7 +304,7 @@ public:
 	afx_msg void OnBnClickedShiftLeft();
 	afx_msg void OnBnClickedCloseParentheses();
 	afx_msg void OnBnClickedOpenParentheses();
-	afx_msg void OnBnClickedPosOrNegative();
+	
 	afx_msg void OnBnClickedF();
 	afx_msg void OnBnClickedE();
 	afx_msg void OnBnClickedD();
