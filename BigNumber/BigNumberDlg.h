@@ -1,11 +1,14 @@
-
+﻿
 // BigNumberDlg.h : header file
 //
 
 #pragma once
 
 #include <string>
-enum Mode {
+#include "Qint.h"
+#include "Qfloat.h"
+#include <sstream>
+enum  Mode {
 	DEC,
 	HEX,
 	BIN
@@ -17,7 +20,7 @@ enum TypeInput {
 	OPEN_PARENTHESES,
 	DOT
 };
-enum TypeNumericMode {
+ enum  DataTypeMode {
 	QINT,
 	QFLOAT
 };
@@ -52,14 +55,104 @@ private:
 	//DEFINE MEMBER
 	CString expression = _T("");
 	CString result = _T("");
-	Mode exMode = DEC;
-	Mode resultMode = DEC;
-	TypeNumericMode typeNumericMode = QINT;
+	Mode exMode = Mode::DEC;
+	Mode resultMode = Mode::DEC;
+	DataTypeMode dataTypeMode = DataTypeMode::QINT;
 
+	void CalculateQFloat();
+
+	//For debug purpose
+
+	void Debug(std::string message) {
+		_cwprintf(_T("%s"), ConvertStringToCString(message));
+	}
+	//D
+	
+	std::string GetSolvedOuputBasedOnResultMode(Qint rawOutput) {
+		if (dataTypeMode == QINT ) {
+
+			if (resultMode == Mode::DEC) {
+				return rawOutput.ToString();
+			}
+			else if (resultMode == Mode::BIN) {
+				std::string temp = rawOutput.DecToBin(true);
+				std::string formatedResult = "";
+				for (int i = 0; i < temp.length(); i++) {
+
+					if (i != 0 && i % 81 == 0) {
+						formatedResult += "\r\n";
+					}
+					formatedResult += temp[i];
+
+				}
+
+				return formatedResult;
+			}
+			else if (resultMode == Mode::HEX) {
+
+				return rawOutput.DecToHex();
+			}
+			
+
+		}
+		else if (dataTypeMode == QFLOAT) {
+			
+			if (resultMode == DEC) {	
+
+				std::stringstream out;
+				out << rawOutput;	
+				return out.str();
+
+			}
+			else if (resultMode == BIN) {
+				std::string result = "";
+				std::string bits = rawOutput.DecToBin(true);
+
+				for (int i = 0; i < 128; i++) {
+					result += bits[i] ? '1' : '0';
+				}
+				return result;
+			}
+			
+		}
+		
+	}
+	std::string GetSolvedOuputBasedOnResultMode(Qfloat rawOutput) {
+		if (dataTypeMode == QFLOAT) {
+
+			if (resultMode == DEC) {
+
+				std::stringstream out;
+				out << rawOutput;
+				return out.str();
+
+			}
+			else if (resultMode == BIN) {
+				std::string result = "";
+				bool* bits = rawOutput.DecToBin(rawOutput);
+
+				for (int i = 0; i < 128; i++) {
+					result += bits[i] ? '1' : '0';
+				}
+				return result;
+			}
+
+		}
+
+	}
+	void ShowErrorDialog(std::string message) {
+
+		AfxMessageBox((ConvertStringToCString(message)));
+
+	}
 	private:
 		CString ConvertStringToCString(std::string input);
 		std::string ConvertCStringToString(CString cstring) ;
+		
+		//Bật tất cả các button ngoại trừ button data type
+
 		void EnableAllButton() {
+
 			BTN_EQUAL.EnableWindow(TRUE);
 			BTN_PLUS.EnableWindow(TRUE);;
 			BTN_SUBTRACT.EnableWindow(TRUE);;
@@ -83,7 +176,7 @@ private:
 			BTN_7.EnableWindow(TRUE);
 			BTN_4.EnableWindow(TRUE);
 			BTN_1.EnableWindow(TRUE);
-			BTN_POS_OR_NEGATIVE.EnableWindow(TRUE);;
+			
 			BTN_A.EnableWindow(TRUE);
 			BTN_B.EnableWindow(TRUE);
 			BTN_D.EnableWindow(TRUE);
@@ -91,8 +184,28 @@ private:
 			BTN_E.EnableWindow(TRUE);
 			BTN_F.EnableWindow(TRUE);
 		}
+		void DisableDecBitOperatorButton() {
+			BTN_AND.EnableWindow(0);
+			BTN_OR.EnableWindow(0);
+			BTN_NOT.EnableWindow(0);
+			BTN_ROR.EnableWindow(0);
+			BTN_ROL.EnableWindow(0);
+			BTN_PLUS.EnableWindow(0);
+			BTN_SUBTRACT.EnableWindow(0);
+			BTN_MULTIPLY.EnableWindow(0);
+			BTN_DIVIDE.EnableWindow(0);
+			BTN_PERCENT.EnableWindow(0);
+			BTN_SHIFT_LEFT.EnableWindow(0);
+			BTN_SHIFT_RIGHT.EnableWindow(0);
+		
+			BTN_OPEN_PARETHESES.EnableWindow(0);
+			BTN_CLOSE_PARENTHESES.EnableWindow(0);
+			BTN_XOR.EnableWindow(0);
+
+		}
 		void OnHexMode(){
 			EnableAllButton();
+			DisableDecBitOperatorButton();
 			BTN_DOT.EnableWindow(FALSE);
 
 		}
@@ -132,7 +245,6 @@ private:
 			BTN_7.EnableWindow(FALSE);
 			BTN_4.EnableWindow(FALSE);
 			BTN_1.EnableWindow(TRUE);
-			BTN_POS_OR_NEGATIVE.EnableWindow(TRUE);;
 			BTN_A.EnableWindow(FALSE);
 			BTN_B.EnableWindow(FALSE);
 			BTN_D.EnableWindow(FALSE);
@@ -148,17 +260,17 @@ private:
 		bool CheckValidInput(TypeInput type) {
 			int lastIndex = expression.GetLength() - 1;
 
-			if (type == NUMBER) {
+			if (type ==TypeInput:: NUMBER) {
 
 				if (lastIndex >= 0 && expression.GetAt(lastIndex) == ')') return false;
 
 			}
-			else if (type == OPERATOR) {
+			else if (type ==TypeInput:: OPERATOR) {
 				
-				if ((lastIndex == 1&&expression.GetAt(lastIndex) == '(') || lastIndex == 0) return false;
+				if ((lastIndex >= 1&&expression.GetAt(lastIndex) == '(') || lastIndex == 0) return false;
 
 			}
-			else if (type == CLOSE_PARENTHESES) {
+			else if (type ==TypeInput:: CLOSE_PARENTHESES) {
 
 				int countClose = 0;
 				int countOpen = 0;
@@ -172,7 +284,7 @@ private:
 				}
 
 			}
-			else if (type == DOT) {
+			else if (type ==TypeInput:: DOT) {
 				auto lastChar = expression.GetAt(lastIndex);
 				if (lastChar == ')' ||
 					lastChar == '>'||
@@ -185,6 +297,7 @@ private:
 			return true;
 	
 		}
+		void CalculateQInt();
 
 public:
 
@@ -211,22 +324,16 @@ public:
 	CButton BTN_7;
 	CButton BTN_4;
 	CButton BTN_1;
-	CButton BTN_POS_OR_NEGATIVE;
 	CButton BTN_A;
 	CButton BTN_B;
 	CButton BTN_D;
 	CButton BTN_C;
 	CButton BTN_E;
 	CButton BTN_F;
-
-	void MessageError() {
-		AfxMessageBox(_T("ERROR"), 0, 0);
-	}
-
 	CEdit EDT_Expression;
 	CEdit EDT_Result;
 	afx_msg void OnBnClickedEqual();
-	void CalculateQInt();
+
 	afx_msg void OnBnClicked1();
 	afx_msg void OnBnClicked2();
 	afx_msg void OnBnClicked3();
@@ -248,7 +355,7 @@ public:
 	afx_msg void OnBnClickedShiftLeft();
 	afx_msg void OnBnClickedCloseParentheses();
 	afx_msg void OnBnClickedOpenParentheses();
-	afx_msg void OnBnClickedPosOrNegative();
+	
 	afx_msg void OnBnClickedF();
 	afx_msg void OnBnClickedE();
 	afx_msg void OnBnClickedD();
@@ -266,9 +373,7 @@ public:
 	CButton BTN_HEX_EX;
 	CButton BTN_BIN_EX;
 	afx_msg void OnBnClickedHexEx();
-	afx_msg void OnBnClickedBinEx();
-
-	
+	afx_msg void OnBnClickedBinEx();	
 	afx_msg void OnBnClickedDecRadioBtn();
 	afx_msg void OnBnClickedBinRadioBtn();
 	afx_msg void OnBnClickedHexRadioBtn();
@@ -277,4 +382,13 @@ public:
 	afx_msg void OnBnClickedQFloatMode();
 	CButton BTN_QintMode;
 	CButton BTN_QfloatMode;
+	CButton BTN_AND;
+	CButton BTN_OR;
+	CButton BTN_XOR;
+	CButton BTN_NOT;
+	CButton BTN_ROR;
+	CButton BTN_ROL;
+	CButton BTN_DEC_RADIO;
+	CButton BTN_BIN_RADIO;
+	CButton BTN_HEX_RADIO;
 };

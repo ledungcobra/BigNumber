@@ -23,6 +23,8 @@ public:
 // Overrides
 public:
 	virtual BOOL InitInstance();
+	
+	void OnAppExit();
 
 // Implementation
 
