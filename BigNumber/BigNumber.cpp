@@ -40,11 +40,11 @@ CBigNumberApp theApp;
 
 BOOL CBigNumberApp::InitInstance()
 {
-
-#ifdef _DEBUG
+//XOA:
+//#ifdef _DEBUG
 	if (!AllocConsole())
 		AfxMessageBox(_T("Failed to create the console!"), MB_ICONEXCLAMATION);
-#endif
+//#endif
 	// InitCommonControlsEx() is required on Windows XP if an application
 	// manifest specifies use of ComCtl32.dll version 6 or later to enable
 	// visual styles.  Otherwise, any window creation will fail.

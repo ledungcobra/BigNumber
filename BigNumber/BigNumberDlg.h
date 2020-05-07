@@ -6,19 +6,19 @@
 
 #include <string>
 #include "Qint.h"
-enum Mode {
+enum class Mode {
 	DEC,
 	HEX,
 	BIN
 };
-enum TypeInput {
+enum class TypeInput {
 	NUMBER,
 	OPERATOR,
 	CLOSE_PARENTHESES,
 	OPEN_PARENTHESES,
 	DOT
 };
- enum TypeNumericMode {
+ enum class TypeNumericMode {
 	QINT,
 	QFLOAT
 };
@@ -63,18 +63,36 @@ private:
 		_cwprintf(_T("%s"), ConvertStringToCString(message));
 	}
 	//D
-	std::string GetSolvedOuputBaseOnResultMode(Qint rawOutput) {
+	std::string GetSolvedOuputBasedOnResultMode(Qint rawOutput) {
+		
 		if (resultMode == DEC) {
 			return rawOutput.ToString();
 		}
 		else if (resultMode == BIN) {
+			std::string temp = rawOutput.DecToBin(true);
+			std::string formatedResult = "";
+			for (int i = 0; i < temp.length(); i++) {
 
-			return rawOutput.DecToBin(true);
+				if (i != 0 && i % 81 == 0) {
+					formatedResult += "\r\n";
+				}
+				formatedResult += temp[i];
+
+			}
+
+			return formatedResult;
 		}
 		else if (resultMode == HEX) {
+
 			return rawOutput.DecToHex();
 		}
 		return "";
+	}
+
+	void ShowErrorDialog(std::string message) {
+
+		AfxMessageBox((ConvertStringToCString(message)));
+
 	}
 	private:
 		CString ConvertStringToCString(std::string input);
@@ -115,8 +133,28 @@ private:
 			BTN_E.EnableWindow(TRUE);
 			BTN_F.EnableWindow(TRUE);
 		}
+		void DisableDecBitOperatorButton() {
+			BTN_AND.EnableWindow(0);
+			BTN_OR.EnableWindow(0);
+			BTN_NOT.EnableWindow(0);
+			BTN_ROR.EnableWindow(0);
+			BTN_ROL.EnableWindow(0);
+			BTN_PLUS.EnableWindow(0);
+			BTN_SUBTRACT.EnableWindow(0);
+			BTN_MULTIPLY.EnableWindow(0);
+			BTN_DIVIDE.EnableWindow(0);
+			BTN_PERCENT.EnableWindow(0);
+			BTN_SHIFT_LEFT.EnableWindow(0);
+			BTN_SHIFT_RIGHT.EnableWindow(0);
+			BTN_POS_OR_NEGATIVE.EnableWindow(0);
+			BTN_OPEN_PARETHESES.EnableWindow(0);
+			BTN_CLOSE_PARENTHESES.EnableWindow(0);
+			BTN_XOR.EnableWindow(0);
+
+		}
 		void OnHexMode(){
 			EnableAllButton();
+			DisableDecBitOperatorButton();
 			BTN_DOT.EnableWindow(FALSE);
 
 		}

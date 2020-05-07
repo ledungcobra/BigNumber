@@ -220,14 +220,7 @@ private:
 		}
 
 	}
-	void Solved() {
-
-		if (_mode == DEC) {
-			_result = calcQint();
-		}
-
-	}
-	std::string calcQint()
+	std::string CalcQint()
 	{
 		if (_expression == "") throw "Emty";
 
@@ -279,33 +272,6 @@ private:
 		}
 		return s.top().ToString();
 	}
-	/*static bool IsContainAllowedInput(std::string  currentChar,Mode mode) {
-		
-		std::vector<std::string> dec = 
-		{ "&", "|", "^", "~", "ror", "rol",">>",
-			"<<","(",")","%","÷","X","-","+",".","0","1","2","3","4","5","6","7","8","9"};
-		std::vector<std::string> hex = { "A","B","C","D","E","F" ,"0","1","2","3","4","5","6","7","8","9" };
-		std::vector<std::string> bin = {"<<",">>","+","-","X","÷","%","0","1","ror","rol","&","|","^","~","2","3","4","5","6","7","8","9" };
-		std::vector<std::string> current;
-
-		if (mode == DEC) {
-			current = dec;
-		}
-		else if (mode == BIN) {
-			current = bin;
-		}
-		else if (mode == HEX) {
-			current = hex;
-			
-		}
-		for (auto i : current) {
-			if (i == currentChar)
-				return true;
-		}
-		return false;
-
-
-	}*/
 public:
 	static CString ConvertStringToCString(std::string input)
 	{
@@ -319,79 +285,67 @@ public:
 	std::string GetResult() {
 		return _result;
 	}
+	static bool CheckValidBacket(std::string expression) {
+
+		std::stack<char> bracket;
+		int i = 0;
+		while (i < expression.length()) {
+
+			if (expression.at(i) == '(') {
+				bracket.push('(');
+			}
+			if (expression.at(i) == ')') {
+				if (bracket.empty()) {
+					return false;
+				}
+				else {
+					bracket.pop();
+				}
+
+			}
+			i++;
+		}
+		return true;
+
+	}
 	static bool CheckValidInput(std::string expression,Mode mode) {
 
-		//DO:
-		/*if (!checkValidBacket(expression)) {
-			return false;
-		}*/
-
+		
 		std::string modifiedExpression = "";
 		for (char currentChar : expression) {
-			if(currentChar != '('&&currentChar!=')'){
+			if (currentChar != '(' && currentChar != ')') {
 				modifiedExpression += currentChar;
-			}			
+			}
 		}
 		modifiedExpression = '(' + modifiedExpression;
 		modifiedExpression += ')';
+		std::regex pattern;
+
 		if (mode == DEC) {
-			
-			std::regex pattern("^\\(((\\+{0,2}|\\-{0,2}|~)?\\d+(\\+{0,2}|\\-{0,2}|~)?(\\+|\\-|X|÷|&|\\||^|ror|rol)?)+\\)$");   // matches words beginning by "sub"
-
-			std::regex_iterator<std::string::iterator> rit(modifiedExpression.begin(), modifiedExpression.end(), pattern);
-			std::regex_iterator<std::string::iterator> rend;
-
-			if (rit == rend) {
+			if (!CheckValidBacket(expression)) {
 				return false;
 			}
-			else {
-				return true;
-			}
+			pattern = "^\\(((\\+{0,2}|\\-{0,2}|~)?\\d+(\\+{0,2}|\\-{0,2}|~)?(\\+|\\-|X|÷|&|\\||^|ror|rol|>>|<<)?)+\\)$";	
 		}
-		else if (mode == BIN) {
-			
+		else if (mode == BIN) {	
+			pattern = "^\\(        \\)$";
+		}
+		else if (HEX == mode) {
+			pattern = "^\\(([0-9A-Fa-f]+)\\)$";
+		}
+
+		
+		std::regex_iterator<std::string::iterator> rit(modifiedExpression.begin(), modifiedExpression.end(), pattern);
+		std::regex_iterator<std::string::iterator> rend;
+
+		if (rit == rend) {
+			return false;
+		}
+		else {
+			return true;
 		}
 		return false;
-	/*	bool flag = true;
-		
-		std::vector<std::string> dec =
-		{ "&", "|", "^", "~", "ror", "rol",">>",
-			"<<","(",")","%","÷","X","-","+",".","0","1","2","3","4","5","6","7","8","9" };
-		std::vector<std::string> hex = { "A","B","C","D","E","F" ,"0","1","2","3","4","5","6","7","8","9" };
-		std::vector<std::string> bin = { "<<",">>","+","-","X","÷","%","0","1","ror","rol","&","|","^","~","2","3","4","5","6","7","8","9" };
-		std::vector<std::string> current;
-
-		if (mode == DEC) {
-			current = dec;
-		}
-		else if (mode == BIN) {
-			current = bin;
-		}
-		else if (mode == HEX) {
-			current = hex;
-
-		}
-		
-
-		if (mode == BIN) {
-			std::string pattern1 = "<<";
-			std::string pattern2 = ">>";
-			bool found = false;
-			for (int i = 0; i < expression.length(); i++) {
-				auto currentSubstr = expression.substr(i, 2);
-				if (currentSubstr == pattern1 || currentSubstr == pattern2) {
-					found = true;
-					break;
-				}
-				if (!found && '1'<expression[i]&& expression[i] <='9') {
-					return false;
-				}
-
-			}
-
-		}
-
-		return true;*/
+	
 
 	}
 };

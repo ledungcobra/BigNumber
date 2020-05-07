@@ -330,15 +330,32 @@ void CBigNumberDlg::OnBnClickedEqual()
 void CBigNumberDlg::CalculateQInt()
 {
 	
+	
+	 if (exMode == HEX) {
+		 if (!ExpressionProcessor::CheckValidInput(ConvertCStringToString(expression), exMode)) {
+			 ShowErrorDialog("Something wrong with your input check it out!!");
+		 }
+		 else {
+			 
+			 auto convertedEx = ConvertCStringToString(expression);
+			 
+			 for (int i = 0; i < convertedEx.length(); i++) {
+				 if (convertedEx[i] == ')' || convertedEx[i] == '(') {
+					 convertedEx.erase(i, 1);
+				 }
 
-	 if (exMode == HEX) {	
-		 Qint output = Qint::HexToDec(ConvertCStringToString(expression));
+				 if ('a'<=convertedEx[i] && convertedEx[i] <= 'f') {
+					 convertedEx[i] += 'A' - 'a';
+				 }
+			 }
 
-		 result = ConvertStringToCString(GetSolvedOuputBaseOnResultMode(output));
+			 Qint output = Qint::HexToDec(convertedEx);
+			 result = ConvertStringToCString(GetSolvedOuputBasedOnResultMode(output));
+		 }
+		
 
 	 }
 	 else {
-
 		
 		 bool invalidInput = false;
 		 std::string resultInString;
@@ -357,7 +374,7 @@ void CBigNumberDlg::CalculateQInt()
 		 if (invalidInput == false) {
 
 			 result = ConvertStringToCString(
-				 GetSolvedOuputBaseOnResultMode(Qint(resultInString)));
+				 GetSolvedOuputBasedOnResultMode(Qint(resultInString)));
 
 		 }
 		
@@ -524,7 +541,7 @@ void CBigNumberDlg::OnBnClickedShiftRight()
 			CheckValidInput(ConvertCStringToString(expression), exMode)) {
 			
 			Qint output = Qint(ConvertCStringToString(expression),true)>>1;
-			result = ConvertStringToCString(GetSolvedOuputBaseOnResultMode(output));
+			result = ConvertStringToCString(GetSolvedOuputBasedOnResultMode(output));
 
 		}
 		else {
@@ -549,7 +566,7 @@ void CBigNumberDlg::OnBnClickedShiftLeft()
 			Qint output = Qint(ConvertCStringToString(expression),true) << 1;
 
 			result = ConvertStringToCString(
-				GetSolvedOuputBaseOnResultMode(output));
+				GetSolvedOuputBasedOnResultMode(output));
 		}
 		else {
 			AfxMessageBox(_T("Invalid Input"));
