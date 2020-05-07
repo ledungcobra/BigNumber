@@ -5,6 +5,7 @@
 
 #include "BitProcess.h"
 #include "Convert.h"
+#include "Qint.h"
 
 Qfloat::Qfloat()
 	:_data{ 0 }
@@ -78,7 +79,11 @@ Qfloat Qfloat::BinToDec(std::string bits)
 
 std::ostream& operator<<(std::ostream& os, const Qfloat& dt)
 {
-	dt.PrintQfloat();
+	std::string bits = BitProcess::Instance()->GetBit(dt._data);
+	
+	const std::string bigFloatNumber = Convert::Instance()->ConvertBinToFloat(bits);
+	os << bigFloatNumber;
+	//dt.PrintQfloat();
 	return os;
 }
 

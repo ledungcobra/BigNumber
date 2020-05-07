@@ -57,36 +57,63 @@ private:
 	Mode resultMode = Mode::DEC;
 	TypeNumericMode dataTypeMode = TypeNumericMode::QINT;
 
+	void CalculateQFloat();
+
 	//For debug purpose
 
 	void Debug(std::string message) {
 		_cwprintf(_T("%s"), ConvertStringToCString(message));
 	}
 	//D
-	std::string GetSolvedOuputBasedOnResultMode(Qint rawOutput) {
-		
-		if (resultMode == Mode::DEC) {
-			return rawOutput.ToString();
-		}
-		else if (resultMode ==Mode:: BIN) {
-			std::string temp = rawOutput.DecToBin(true);
-			std::string formatedResult = "";
-			for (int i = 0; i < temp.length(); i++) {
+	template<class T>
+	std::string GetSolvedOuputBasedOnResultMode(T rawOutput) {
+		if (dataTypeMode == QINT &&typeid(T).name() == "Qint") {
 
-				if (i != 0 && i % 81 == 0) {
-					formatedResult += "\r\n";
+			if (resultMode == Mode::DEC) {
+				return rawOutput.ToString();
+			}
+			else if (resultMode == Mode::BIN) {
+				std::string temp = rawOutput.DecToBin(true);
+				std::string formatedResult = "";
+				for (int i = 0; i < temp.length(); i++) {
+
+					if (i != 0 && i % 81 == 0) {
+						formatedResult += "\r\n";
+					}
+					formatedResult += temp[i];
+
 				}
-				formatedResult += temp[i];
+
+				return formatedResult;
+			}
+			else if (resultMode == Mode::HEX) {
+
+				return rawOutput.DecToHex();
+			}
+			
+
+		}
+		else if (dataTypeMode == QFLOAT &&typeid(T).name() == "Qfloat") {
+			
+			if (resultMode == DEC) {	
+
+				std::stringstream out;
+				out << rawOutput;	
+				return out.str();
 
 			}
+			else if (resultMode == BIN) {
+				std::string result = "";
+				std::string bits = rawOutput.DecToBin(true);
 
-			return formatedResult;
+				for (int i = 0; i < 128; i++) {
+					result += bits[i] ? '1' : '0';
+				}
+				return result;
+			}
+			
 		}
-		else if (resultMode ==Mode:: HEX) {
-
-			return rawOutput.DecToHex();
-		}
-		return "";
+		
 	}
 
 	void ShowErrorDialog(std::string message) {

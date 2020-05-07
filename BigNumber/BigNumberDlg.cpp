@@ -14,7 +14,8 @@
 #include <string>
 #include "Convert.h"
 #include "ExpressionProcessor.h"
-
+#include "Qfloat.h"
+#include <sstream>
 
 // CAboutDlg dialog used for App About
 
@@ -259,6 +260,13 @@ HCURSOR CBigNumberDlg::OnQueryDragIcon()
 	return static_cast<HCURSOR>(m_hIcon);
 }
 
+void CBigNumberDlg::CalculateQFloat()
+{
+
+
+
+}
+
 CString CBigNumberDlg::ConvertStringToCString(std::string input)
 {
 	return CString(input.c_str());
@@ -270,15 +278,10 @@ std::string CBigNumberDlg::ConvertCStringToString(CString cstring)
 	std::string result(t);
 	return result;
 }
-
+//DEBUG
 void CBigNumberDlg::UpdateUI()
 {
-	if (dataTypeMode == QINT) {
-
-
-
-		EDT_Expression.SetWindowTextW(expression);
-		EDT_Result.SetWindowTextW(result);
+	if (dataTypeMode == QINT) {		
 
 		if (exMode == HEX) {
 			OnHexMode();
@@ -295,10 +298,18 @@ void CBigNumberDlg::UpdateUI()
 
 		exMode = DEC;
 		resultMode = DEC;
-		//Khi nguoi dung cho Qfloat
+		Qfloat a("1.10110",resultMode == BIN);
+		std::stringstream s;
+		s << a;
+
+		result = ConvertStringToCString(s.str());
+		
 
 
 	}
+	EDT_Expression.SetWindowTextW(expression);
+	EDT_Result.SetWindowTextW(result);
+
 	EDT_Expression.SetFocus();
 	EDT_Expression.SetSel(0, -1);
 	EDT_Expression.SetSel(-1);
@@ -318,6 +329,7 @@ void CBigNumberDlg::OnBnClickedEqual()
 		//DO:
 		//->DEC MODE
 		//-> BIN MODE
+		CalculateQFloat();
 
 	}
 	UpdateUI();
