@@ -12,8 +12,8 @@
 #define new DEBUG_NEW
 #endif
 #include <string>
-#include "ExpressionProcessor.h"
 #include "Convert.h"
+#include "ExpressionProcessor.h"
 
 
 // CAboutDlg dialog used for App About
@@ -200,6 +200,7 @@ BOOL CBigNumberDlg::OnInitDialog()
 
 	// TODO: Add extra initialization here
 	//INIT VALUE HERE
+	Debug("^\\(((\\+{0,2}|\\-{0,2}|~)?\\d+(\\+|\\-|X|÷|&|\\||^|ror|rol)?)+\\)$");
 	EDT_Expression.EnableScrollBar(0);
 	EDT_Expression.SetFocus();
 	CheckRadioButton(IDC_RADIO5, IDC_RADIO7, IDC_RADIO5);
@@ -331,18 +332,14 @@ void CBigNumberDlg::CalculateQInt()
 	
 
 	 if (exMode == HEX) {	
-		if (resultMode == DEC) {
-			
-		}
-		else if (resultMode == BIN) {
-			//CHUA
-		}
-		else if(resultMode == HEX) {
-			result = expression;
-		}
+		 Qint output = Qint::HexToDec(ConvertCStringToString(expression));
+
+		 result = ConvertStringToCString(GetSolvedOuputBaseOnResultMode(output));
+
 	 }
 	 else {
 
+		
 		 bool invalidInput = false;
 		 std::string resultInString;
 		 try {
@@ -352,9 +349,10 @@ void CBigNumberDlg::CalculateQInt()
 			 resultInString = expressHandle.GetResult();
 
 		 }
-		 catch (char* e) {
+		 catch (...) {
 			 result = "0";
 			 invalidInput = true;
+			 Debug("Reach here");
 		 }
 		 if (invalidInput == false) {
 
@@ -362,9 +360,7 @@ void CBigNumberDlg::CalculateQInt()
 				 GetSolvedOuputBaseOnResultMode(Qint(resultInString)));
 
 		 }
-		 else {
-			 AfxMessageBox(_T("Invalid Input"));
-		 }
+		
 	 }
 	
 
@@ -751,6 +747,7 @@ void CBigNumberDlg::OnBnClickedHexRadioBtn()
 
 void CBigNumberDlg::OnChangeInput()
 {
+
 	EDT_Expression.GetWindowTextW(expression);
 }
 
@@ -764,7 +761,11 @@ void CBigNumberDlg::OnBnClickedQintMode()
 	BTN_QintMode.EnableWindow(FALSE);
 	BTN_QfloatMode.EnableWindow(TRUE);
 
+	BTN_DEC_EX.EnableWindow(FALSE);
+	BTN_BIN_EX.EnableWindow(TRUE);
+	
 	EnableAllButton();
+	OnDecMode();
 
 	BTN_HEX_EX.EnableWindow(1);	
 	BTN_HEX_RADIO.EnableWindow(1);
@@ -805,5 +806,9 @@ void CBigNumberDlg::OnBnClickedQFloatMode()
 	BTN_SHIFT_LEFT.EnableWindow(FALSE);
 
 	BTN_HEX_EX.EnableWindow(FALSE);
+	BTN_DEC_EX.EnableWindow(FALSE);
+	BTN_BIN_EX.EnableWindow(FALSE);
+
+
 
 }

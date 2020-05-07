@@ -5,6 +5,8 @@
 #include <iostream>
 #include "Qint.h"
 #include "BigNumberDlg.h"
+#include <regex>
+
 
 class ExpressionProcessor
 {
@@ -230,6 +232,7 @@ private:
 		if (_expression == "") throw "Emty";
 
 		auto expression = convertInfixToPostfix();
+		if (expression.empty()) throw "Empty queue";
 		PrintQueue(expression);
 		std::stack<Qint> s;
 		std::string temp;
@@ -276,7 +279,7 @@ private:
 		}
 		return s.top().ToString();
 	}
-	static bool IsContainAllowedInput(std::string  currentChar,Mode mode) {
+	/*static bool IsContainAllowedInput(std::string  currentChar,Mode mode) {
 		
 		std::vector<std::string> dec = 
 		{ "&", "|", "^", "~", "ror", "rol",">>",
@@ -302,27 +305,73 @@ private:
 		return false;
 
 
-	}
+	}*/
 public:
+	static CString ConvertStringToCString(std::string input)
+	{
+		return CString(input.c_str());
+	}
+
+	static void Debug(std::string message) {
+		_cwprintf(_T("%s"), ConvertStringToCString(message));
+	}
 	ExpressionProcessor(std::string input,Mode mode);
 	std::string GetResult() {
 		return _result;
 	}
 	static bool CheckValidInput(std::string expression,Mode mode) {
-		bool flag = true;
-		for (int i = 0; i < expression.length(); i++) {
-			auto _3chars = expression.substr(i, 3);
-			auto _2chars = expression.substr(i, 2);
-			auto _1char = expression.substr(i, 1);
 
-			if (!IsContainAllowedInput(_3chars,mode) &&
-				!IsContainAllowedInput(_2chars,mode) &&
-				!IsContainAllowedInput(_1char,mode)) {
+		//DO:
+		/*if (!checkValidBacket(expression)) {
+			return false;
+		}*/
+
+		std::string modifiedExpression = "";
+		for (char currentChar : expression) {
+			if(currentChar != '('&&currentChar!=')'){
+				modifiedExpression += currentChar;
+			}			
+		}
+		modifiedExpression = '(' + modifiedExpression;
+		modifiedExpression += ')';
+		if (mode == DEC) {
+			
+			std::regex pattern("^\\(((\\+{0,2}|\\-{0,2}|~)?\\d+(\\+{0,2}|\\-{0,2}|~)?(\\+|\\-|X|÷|&|\\||^|ror|rol)?)+\\)$");   // matches words beginning by "sub"
+
+			std::regex_iterator<std::string::iterator> rit(modifiedExpression.begin(), modifiedExpression.end(), pattern);
+			std::regex_iterator<std::string::iterator> rend;
+
+			if (rit == rend) {
 				return false;
-
 			}
+			else {
+				return true;
+			}
+		}
+		else if (mode == BIN) {
+			
+		}
+		return false;
+	/*	bool flag = true;
+		
+		std::vector<std::string> dec =
+		{ "&", "|", "^", "~", "ror", "rol",">>",
+			"<<","(",")","%","÷","X","-","+",".","0","1","2","3","4","5","6","7","8","9" };
+		std::vector<std::string> hex = { "A","B","C","D","E","F" ,"0","1","2","3","4","5","6","7","8","9" };
+		std::vector<std::string> bin = { "<<",">>","+","-","X","÷","%","0","1","ror","rol","&","|","^","~","2","3","4","5","6","7","8","9" };
+		std::vector<std::string> current;
+
+		if (mode == DEC) {
+			current = dec;
+		}
+		else if (mode == BIN) {
+			current = bin;
+		}
+		else if (mode == HEX) {
+			current = hex;
 
 		}
+		
 
 		if (mode == BIN) {
 			std::string pattern1 = "<<";
@@ -342,7 +391,7 @@ public:
 
 		}
 
-		return true;
+		return true;*/
 
 	}
 };
