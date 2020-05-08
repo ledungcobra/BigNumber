@@ -47,7 +47,7 @@ private:
 		}
 		return MAX - 8;
 	}
-	bool isNumber(char c)
+	static bool isNumber(char c)
 	{
 		if (c >= '0' && c <= '9')
 			return true;
@@ -305,11 +305,18 @@ public:
 		for (int i = 0; i < ex.length(); i++) {
 
 			if (ex[i] == '(') {
+				if (i >= 1 && isNumber(ex[i - 1])) {
+					return false;
+				}
 				PosParentheses temp;
 				temp.begin = i;
 				bucket.push(temp);
 			}
 			else if (ex[i] == ')') {
+
+				if (i <= ex.length() - 2 && isNumber(ex[i + 1])) {
+					return false;
+				}
 				if (bucket.empty() == true) {
 					return false;
 				}
@@ -321,9 +328,13 @@ public:
 						return false;
 					}
 					else {
+
+
+					
 						ex.erase(current.begin, current.end - current.begin + 1);
 						ex.insert(current.begin, "0");
 						i -= sub.length() - 1;
+						
 					}
 				}
 
@@ -340,12 +351,11 @@ public:
 		std::string pattern;
 		if (typeNumber == QINT) {
 			if (mode == Mode::DEC) {
-				pattern = "^\\(((\\+{0,2}|\\-{0,2}|~)?\\d+(\\+{2}|\\-{2}|~)?((\\+|\\-|X|\\*|÷|&|\\||^|ror|rol|>>|<<|\\/)(?=((\\+{0,2}|\\-{0,2}|~)?\\d+(\\+{2}|\\-{2}|~)?)))?)+\\)$";
+				pattern = "^\\(((\\+{0,2}|\\-{0,2}|~)?\\d+(\\+{2}|\\-{2}|~)?((\\+|\\-|X|\\*|÷|&|\\||\\^|ror|rol|>>|<<|\\/)(?=((\\+{0,2}|\\-{0,2}|~)?\\d+(\\+{2}|\\-{2}|~)?)))?)+\\)$";
 
-				//pattern = "^\\(((\\+{0,2}|\\-{0,2}|~)?\\d+(\\+{0,2}|\\-{0,2}|~)?(\\+|\\-|X|÷|&|\\||^|ror|rol|>>|<<)?)+\\)$";	
 			}
 			else if (mode == Mode::BIN) {
-				pattern = "^\\((~?[0-1]+((\\+|\\-|\\X|\\*|÷|&|\\||>>|<<|^|~|ror|rol|\\/)(?=~?[0-1]+))?)+\\)$";
+				pattern = "^\\((~?[0-1]+((\\+|\\-|X|\\*|÷|&|\\||>>|<<|\\^|\\/|~|ror|rol)(?=~?[0-1]+))?)+\\)$";
 			}
 			else if (Mode::HEX == mode) {
 				pattern = "^\\(([0-9A-Fa-f]+)\\)$";

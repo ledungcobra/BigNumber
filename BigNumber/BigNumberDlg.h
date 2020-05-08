@@ -373,46 +373,6 @@ private:
 			}
 		}
 		void UpdateUI();
-		bool CheckValidInput(TypeInput type) {
-			int lastIndex = expression.GetLength() - 1;
-
-			if (type ==TypeInput:: NUMBER) {
-
-				if (lastIndex >= 0 && expression.GetAt(lastIndex) == ')') return false;
-
-			}
-			else if (type ==TypeInput:: OPERATOR) {
-				
-				if ((lastIndex >= 1&&expression.GetAt(lastIndex) == '(') || lastIndex == 0) return false;
-
-			}
-			else if (type ==TypeInput:: CLOSE_PARENTHESES) {
-
-				int countClose = 0;
-				int countOpen = 0;
-				for (int i = 0; i < expression.GetLength(); i++) {
-					if (expression.GetAt(lastIndex) == '(') countOpen++;
-					if (expression.GetAt(lastIndex) == ')') countClose++;
-				}
-
-				if (countOpen - countClose != 1) {
-					return false;
-				}
-
-			}
-			else if (type ==TypeInput:: DOT) {
-				auto lastChar = expression.GetAt(lastIndex);
-				if (lastChar == ')' ||
-					lastChar == '>'||
-					lastChar == '<' ||
-					lastChar == '|'||
-					lastChar == '^'||
-					lastChar == '~'||
-					lastChar == '&') return false;
-			}
-			return true;
-	
-		}
 		void CalculateQInt();
 
 public:
@@ -507,4 +467,6 @@ public:
 	CButton BTN_DEC_RADIO;
 	CButton BTN_BIN_RADIO;
 	CButton BTN_HEX_RADIO;
+	void OnOK();
+	
 };

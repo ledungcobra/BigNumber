@@ -413,91 +413,95 @@ void CBigNumberDlg::CalculateQInt()
 
 void CBigNumberDlg::OnBnClicked1()
 {
-	if(!CheckValidInput(NUMBER)) return;
+
 	expression += _T("1");
 	UpdateUI();
+	expressionChanged = true;
 
 }
 
 
 void CBigNumberDlg::OnBnClicked2()
 {
-	if (!CheckValidInput(NUMBER)) return;
+	
 	expression += _T("2");
 	UpdateUI();
+	expressionChanged = true;
 }
 
 
 void CBigNumberDlg::OnBnClicked3()
 {
-	if (!CheckValidInput(NUMBER)) return;
 	expression += _T("3");
 	UpdateUI();
+	expressionChanged = true;
 }
 
 
 void CBigNumberDlg::OnBnClicked4()
 {
-	if (!CheckValidInput(NUMBER)) return;
 	expression += _T("4");
 	UpdateUI();
+	expressionChanged = true;
 }
 
 
 void CBigNumberDlg::OnBnClicked5()
 {
-	if (!CheckValidInput(NUMBER)) return;
 	expression += _T("5");
 	UpdateUI();
+	expressionChanged = true;
 }
 
 
 void CBigNumberDlg::OnBnClicked6()
 {
-	if (!CheckValidInput(NUMBER)) return;
 	expression += _T("6");
 	UpdateUI();
+	expressionChanged = true;
 }
 
 
 void CBigNumberDlg::OnBnClicked7()
 {
-	if (!CheckValidInput(NUMBER)) return;
 	expression += _T("7");
 	UpdateUI();
+	expressionChanged = true;
 }
 
 
 void CBigNumberDlg::OnBnClicked8()
 {
-	if (!CheckValidInput(NUMBER)) return;
+	
 	expression += _T("8");
 	UpdateUI();
+	expressionChanged = true;
 }
 
 
 void CBigNumberDlg::OnBnClicked9()
 {
-	if (!CheckValidInput(NUMBER)) return;
 	expression += _T("9");
 	UpdateUI();
+	expressionChanged = true;
 }
 
 
 void CBigNumberDlg::OnBnClicked0()
 {
-	if (!CheckValidInput(NUMBER)) return;
 	expression += _T("0");
 	UpdateUI();
+	expressionChanged = true;
 }
 
 
 void CBigNumberDlg::OnBnClickedDot()
 {
 	//Trường hợp nhập 1 dấu chấm
-	if (!CheckValidInput(DOT)) return;
+
 	expression += _T(".");
 	UpdateUI();
+	expressionChanged = true;
 }
 
 
@@ -505,36 +509,38 @@ void CBigNumberDlg::OnBnClickedPlus()
 {
 
 	//Trường hợp nhập + không có số hạng
-	CheckValidInput(OPERATOR);
 	expression += _T("+");
 		
 
 
 	UpdateUI();
+	expressionChanged = true;
 }
 
 
 void CBigNumberDlg::OnBnClickedSubtract()
 {
-	CheckValidInput(OPERATOR);
 	expression += _T("-");
 	UpdateUI();
+	expressionChanged = true;
 }
 
 
 void CBigNumberDlg::OnBnClickedMultiply()
 {
-	CheckValidInput(OPERATOR);
+
 	expression += _T("X");
 	UpdateUI();
+	expressionChanged = true;
 }
 
 
 void CBigNumberDlg::OnBnClickedDivide()
 {
-	CheckValidInput(OPERATOR);
+	
 	expression += _T("÷");
 	UpdateUI();
+	expressionChanged = true;
 }
 
 
@@ -545,6 +551,7 @@ void CBigNumberDlg::OnBnClickedClearOneChar()
 		FreeCache();
 		UpdateUI();
 	}
+	expressionChanged = true;
 	
 }
 
@@ -556,12 +563,13 @@ void CBigNumberDlg::OnBnClickedClearAll()
 	result = _T("");
 	FreeCache();
 	UpdateUI();
+	expressionChanged = true;
 }
 
 
 void CBigNumberDlg::OnBnClickedShiftRight()
 {
-	CheckValidInput(OPERATOR);
+
 	if (exMode == DEC) {
 		
 		expression += _T(">>");
@@ -585,7 +593,7 @@ void CBigNumberDlg::OnBnClickedShiftRight()
 
 void CBigNumberDlg::OnBnClickedShiftLeft()
 {
-	CheckValidInput(OPERATOR);
+	
 	if (exMode == DEC) {
 		expression += _T("<<");
 	}
@@ -611,34 +619,28 @@ void CBigNumberDlg::OnBnClickedShiftLeft()
 
 void CBigNumberDlg::OnBnClickedCloseParentheses()
 {
-	CheckValidInput(CLOSE_PARENTHESES);
 	expression += _T(")");
 	UpdateUI();
+	expressionChanged = true;
 }
 
 
 
 void CBigNumberDlg::OnBnClickedOpenParentheses()
 {
-	CheckValidInput(OPEN_PARENTHESES);
+
 	expression += _T("(");
 	UpdateUI();
+	expressionChanged = true;
 }
 
-
-//void CBigNumberDlg::OnBnClickedPosOrNegative()
-//{
-//	expression.Insert(0, _T("-("));
-//	expression.Insert(expression.GetLength(), _T(")"));
-//	UpdateUI();
-//
-//}
 
 
 void CBigNumberDlg::OnBnClickedF()
 {
 	expression += _T("F");
 	UpdateUI();
+	expressionChanged = true;
 }
 
 
@@ -646,6 +648,7 @@ void CBigNumberDlg::OnBnClickedE()
 {
 	expression += _T("E");
 	UpdateUI();
+	expressionChanged = true;
 }
 
 
@@ -653,6 +656,7 @@ void CBigNumberDlg::OnBnClickedD()
 {
 	expression += _T("D");
 	UpdateUI();
+	expressionChanged = true;
 }
 
 
@@ -660,6 +664,7 @@ void CBigNumberDlg::OnBnClickedC()
 {
 	expression += _T("C");
 	UpdateUI();
+	expressionChanged = true;
 }
 
 
@@ -667,6 +672,7 @@ void CBigNumberDlg::OnBnClickedB()
 {
 	expression += _T("B");
 	UpdateUI();
+	expressionChanged = true;
 }
 
 
@@ -674,38 +680,39 @@ void CBigNumberDlg::OnBnClickedA()
 {
 	expression += _T("A");
 	UpdateUI();
+	expressionChanged = true;
 }
 
 
 void CBigNumberDlg::OnBnClickedAND()
 {
-	CheckValidInput(OPERATOR);
 	expression += _T("&");
 	UpdateUI();
+	expressionChanged = true;
 }
 
 
 void CBigNumberDlg::OnBnClickedOR()
 {
-	CheckValidInput(OPERATOR);
 	expression += _T("|");
 	UpdateUI();
+	expressionChanged = true;
 }
 
 
 void CBigNumberDlg::OnBnClickedXOR()
 {
-	CheckValidInput(OPERATOR);
 	expression += _T("^");
 	UpdateUI();
+	expressionChanged = true;
 }
 
 
 void CBigNumberDlg::OnBnClickedNOT()
 {
-	CheckValidInput(OPERATOR);
 	expression += _T("~");
 	UpdateUI();
+	expressionChanged = true;
 }
 
 
@@ -714,6 +721,7 @@ void CBigNumberDlg::OnBnClickedROR()
 
 	expression += _T("ror");
 	UpdateUI();
+	expressionChanged = true;
 }
 
 
@@ -721,6 +729,7 @@ void CBigNumberDlg::OnBnClickedROL()
 {
 	expression += _T("rol");
 	UpdateUI();
+	expressionChanged = true;
 }
 
 
@@ -733,6 +742,7 @@ void CBigNumberDlg::OnBnClickedDecEx()
 	exMode = DEC;
 	ResetUI();
 	UpdateUI();
+	expressionChanged = true;
 }
 
 
@@ -744,6 +754,7 @@ void CBigNumberDlg::OnBnClickedHexEx()
 	exMode = HEX;
 	ResetUI();
 	UpdateUI();
+	expressionChanged = true;
 }
 
 
@@ -755,6 +766,7 @@ void CBigNumberDlg::OnBnClickedBinEx()
 	exMode = BIN;
 	ResetUI();
 	UpdateUI();
+	expressionChanged = true;
 }
 
 
@@ -849,6 +861,7 @@ void CBigNumberDlg::OnBnClickedQintMode()
 	BTN_HEX_EX.EnableWindow(1);	
 	BTN_HEX_RADIO.EnableWindow(1);
 
+	expressionChanged = true;
 
 }
 
@@ -890,4 +903,9 @@ void CBigNumberDlg::OnBnClickedQFloatMode()
 
 
 
+}
+
+void CBigNumberDlg::OnOK()
+{
+	OnBnClickedEqual();
 }
