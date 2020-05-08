@@ -7,7 +7,10 @@
 #include "BigNumberDlg.h"
 #include <regex>
 
-
+struct PosParentheses {
+	size_t begin;
+	size_t end;
+};
 class ExpressionProcessor
 {
 private:
@@ -24,7 +27,7 @@ private:
 		else if (c == "++x" || c == "--x" || c == "~") {
 			return MAX - 1;
 		}
-		else if (c == "X" || c == "÷" || c == "%") {
+		else if (c=="*"||c == "X" || c == "÷" |c == "/" || c == "%") {
 			return MAX - 2;
 		}
 		else if (c == "+" || c == "-") {
@@ -63,7 +66,9 @@ private:
 			c == "--x" ||
 			c == "~" ||
 			c == "X" ||
+			c == "*"||
 			c == "÷" ||
+			c == "/"||
 			c == "%" ||
 			c == "+" ||
 			c == "-" ||
@@ -164,23 +169,15 @@ private:
 		}
 		return queueExp;
 	}
-	void PrintQueue(std::queue<std::string> q)
-	{
-		while (q.size() != 0)
-		{
-			std::cout << q.front() << " ";
-			q.pop();
-		}
-	}
 	Qint SimpleCalc(Qint *a, Qint b, std::string _operator)
 	{
 		if (_operator == "+")
 			return b+ *a;
 		if (_operator == "-")
 			return  b-*a;
-		if (_operator == "X")
+		if (_operator == "X"||_operator == "*")
 			return b**a;
-		if (_operator == "÷")
+		if (_operator == "÷"||_operator == "/")
 			return b/(*a);
 		if (_operator == "^")
 			return b^*a;
@@ -226,7 +223,7 @@ private:
 
 		auto expression = convertInfixToPostfix();
 		if (expression.empty()) throw "Empty queue";
-		PrintQueue(expression);
+	
 		std::stack<Qint> s;
 		std::string temp;
 		while (!expression.empty())
@@ -284,65 +281,10 @@ public:
 	ExpressionProcessor(std::string input,Mode mode);
 	std::string GetResult() {
 		return _result;
-	}
-	static bool CheckValidBacket(std::string expression) {
-
-		std::stack<char> bracket;
-		int i = 0;
-		while (i < expression.length()) {
-
-			if (expression.at(i) == '(') {
-				bracket.push('(');
-			}
-			if (expression.at(i) == ')') {
-				if (bracket.empty()) {
-					return false;
-				}
-				else {
-					bracket.pop();
-				}
-
-			}
-			i++;
-		}
-		return true;
-
-	}
-	static bool CheckValidInput(std::string expression,Mode mode,DataTypeMode typeNumber) {
-
-		
-		std::string modifiedExpression = "";
-		for (char currentChar : expression) {
-			if (currentChar != '(' && currentChar != ')') {
-				modifiedExpression += currentChar;
-			}
-		}
-		modifiedExpression = '(' + modifiedExpression;
-		modifiedExpression += ')';
-		std::regex pattern;
-		if (typeNumber == QINT) {
-			if (mode == Mode::DEC) {
-				if (!CheckValidBacket(expression)) {
-					return false;
-				}
-				pattern = "^\\(((\\+{0,2}|\\-{0,2}|~)?\\d+(\\+{2}|\\-{2}|~)?((\\+|\\-|X|÷|&|\\||^|ror|rol|>>|<<)(?=((\\+{0,2}|\\-{0,2}|~)?\\d+(\\+{2}|\\-{2}|~)?)))?)+\\)$";
-
-				//pattern = "^\\(((\\+{0,2}|\\-{0,2}|~)?\\d+(\\+{0,2}|\\-{0,2}|~)?(\\+|\\-|X|÷|&|\\||^|ror|rol|>>|<<)?)+\\)$";	
-			}
-			else if (mode == Mode::BIN) {
-				pattern = "^\\((~?[0-1]+((\\+|\\-|\\X|÷|&|\\||>>|<<|^|~|ror|rol)(?=~?[0-1]+))?)+\\)$";
-			}
-			else if (Mode::HEX == mode) {
-				pattern = "^\\(([0-9A-Fa-f]+)\\)$";
-			}
-
-		}
-		else if (typeNumber == QFLOAT) {
-			pattern = "^\\(\\d+(\\.\\d+)?\\)$";
-		}
-		
-		
-		std::regex_iterator<std::string::iterator> rit(modifiedExpression.begin(), modifiedExpression.end(), pattern);
+	}	
+	static bool MatchSubExpression(std::string sub,std::string regexPattern) {
+		std::regex pattern(regexPattern);
+		std::regex_iterator<std::string::iterator> rit(sub.begin(), sub.end(), pattern);
 		std::regex_iterator<std::string::iterator> rend;
 
 		if (rit == rend) {
@@ -352,6 +294,68 @@ public:
 			return true;
 		}
 		return false;
+
+	}
+
+	static bool CheckValidDecExpression(std::string ex,std::string regexPattern) {
+
+		std::stack<PosParentheses> bucket;
+
+
+		for (int i = 0; i < ex.length(); i++) {
+
+			if (ex[i] == '(') {
+				PosParentheses temp;
+				temp.begin = i;
+				bucket.push(temp);
+			}
+			else if (ex[i] == ')') {
+				if (bucket.empty() == true) {
+					return false;
+				}
+				else {
+					auto current = bucket.top(); bucket.pop();
+					current.end = i;
+					auto sub = ex.substr(current.begin, current.end - current.begin + size_t(1));
+					if (MatchSubExpression(sub,regexPattern) == false) {
+						return false;
+					}
+					else {
+						ex.erase(current.begin, current.end - current.begin + 1);
+						ex.insert(current.begin, "0");
+						i -= sub.length() - 1;
+					}
+				}
+
+			}
+
+		}
+		return bucket.empty();
+
+
+	}
+	static bool CheckValidInput(std::string expression,Mode mode,DataTypeMode typeNumber) {
+
+		std::string pattern;
+		if (typeNumber == QINT) {
+			if (mode == Mode::DEC) {
+				pattern = "^\\(((\\+{0,2}|\\-{0,2}|~)?\\d+(\\+{2}|\\-{2}|~)?((\\+|\\-|X|\\*|÷|&|\\||^|ror|rol|>>|<<|\\/)(?=((\\+{0,2}|\\-{0,2}|~)?\\d+(\\+{2}|\\-{2}|~)?)))?)+\\)$";
+
+				//pattern = "^\\(((\\+{0,2}|\\-{0,2}|~)?\\d+(\\+{0,2}|\\-{0,2}|~)?(\\+|\\-|X|÷|&|\\||^|ror|rol|>>|<<)?)+\\)$";	
+			}
+			else if (mode == Mode::BIN) {
+				pattern = "^\\((~?[0-1]+((\\+|\\-|\\X|\\*|÷|&|\\||>>|<<|^|~|ror|rol|\\/)(?=~?[0-1]+))?)+\\)$";
+			}
+			else if (Mode::HEX == mode) {
+				pattern = "^\\(([0-9A-Fa-f]+)\\)$";
+			}
+
+		}
+		else if (typeNumber == QFLOAT) {
+			pattern = "^\\(\\d+(\\.\\d+)?\\)$";
+		}
+		return CheckValidDecExpression(expression, pattern);
+		
 	
 
 	}

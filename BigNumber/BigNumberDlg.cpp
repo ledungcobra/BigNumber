@@ -199,7 +199,6 @@ BOOL CBigNumberDlg::OnInitDialog()
 
 	// TODO: Add extra initialization here
 	//INIT VALUE HERE
-	Debug("^\\(((\\+{0,2}|\\-{0,2}|~)?\\d+(\\+|\\-|X|÷|&|\\||^|ror|rol)?)+\\)$");
 	EDT_Expression.EnableScrollBar(0);
 	EDT_Expression.SetFocus();
 	CheckRadioButton(IDC_RADIO5, IDC_RADIO7, IDC_RADIO5);
