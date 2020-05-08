@@ -262,7 +262,7 @@ HCURSOR CBigNumberDlg::OnQueryDragIcon()
 void CBigNumberDlg::CalculateQFloat()
 {
 
-	
+	//DO:Cache
 	auto input = ConvertCStringToString(expression);
 	
 	auto i = input.find(")");
@@ -292,6 +292,8 @@ void CBigNumberDlg::CalculateQFloat()
 
 }
 
+
+
 CString CBigNumberDlg::ConvertStringToCString(std::string input)
 {
 	return CString(input.c_str());
@@ -306,6 +308,7 @@ std::string CBigNumberDlg::ConvertCStringToString(CString cstring)
 //DEBUG
 void CBigNumberDlg::UpdateUI()
 {
+	
 	if (dataTypeMode == QINT) {		
 
 		if (exMode == HEX) {
@@ -319,10 +322,10 @@ void CBigNumberDlg::UpdateUI()
 		}
 
 	}
-
+	
 	EDT_Expression.SetWindowTextW(expression);
 	EDT_Result.SetWindowTextW(result);
-
+	expressionChanged = false;
 	EDT_Expression.SetFocus();
 	EDT_Expression.SetSel(0, -1);
 	EDT_Expression.SetSel(-1);
@@ -335,70 +338,74 @@ void CBigNumberDlg::UpdateUI()
 void CBigNumberDlg::OnBnClickedEqual()
 {
 	EDT_Expression.GetWindowTextW(expression);
+	
 	if (dataTypeMode == QINT) {
 		CalculateQInt();
 	}
-	else if(dataTypeMode == QFLOAT){
+	else if (dataTypeMode == QFLOAT) {
 		CalculateQFloat();
 
 	}
 	UpdateUI();
-
+	expressionChanged = false;
 	
 }
 
 void CBigNumberDlg::CalculateQInt()
 {
 	
-	
-	 if (exMode == HEX) {
-		 if (!ExpressionProcessor::CheckValidInput(ConvertCStringToString(expression), exMode,QINT)) {
-			 ShowErrorDialog("Something wrong with your input check it out!!");
-		 }
-		 else {
-			 
-			 auto convertedEx = ConvertCStringToString(expression);
-			 
-			 for (int i = 0; i < convertedEx.length(); i++) {
-				 if (convertedEx[i] == ')' || convertedEx[i] == '(') {
-					 convertedEx.erase(i, 1);
-				 }
 
-				 if ('a'<=convertedEx[i] && convertedEx[i] <= 'f') {
-					 convertedEx[i] += 'A' - 'a';
-				 }
-			 }
+	if (exMode == HEX) {
+		if (!ExpressionProcessor::CheckValidInput(ConvertCStringToString(expression), exMode, QINT)) {
+			ShowErrorDialog("Something wrong with your input check it out!!");
+		}
+		else {
 
-			 Qint output = Qint::HexToDec(convertedEx);
-			 result = ConvertStringToCString(GetSolvedOuputBasedOnResultMode(output));
-		 }
-		
+			auto convertedEx = ConvertCStringToString(expression);
 
-	 }
-	 else {
-		
-		 bool invalidInput = false;
-		 std::string resultInString;
-		 try {
+			for (int i = 0; i < convertedEx.length(); i++) {
+				if (convertedEx[i] == ')' || convertedEx[i] == '(') {
+					convertedEx.erase(i, 1);
+				}
 
-			 ExpressionProcessor expressHandle(ConvertCStringToString(expression), exMode);
-			 result = ConvertStringToCString(expressHandle.GetResult());
-			 resultInString = expressHandle.GetResult();
+				if ('a' <= convertedEx[i] && convertedEx[i] <= 'f') {
+					convertedEx[i] += 'A' - 'a';
+				}
+			}
 
-		 }
-		 catch (...) {
-			 result = "0";
-			 invalidInput = true;
-			 Debug("Reach here");
-		 }
-		 if (invalidInput == false) {
+			Qint output = Qint::HexToDec(convertedEx);
+			auto temp = GetSolvedOuputBasedOnResultMode(output);
+			result = ConvertStringToCString(temp);
+				
+		}
 
-			 result = ConvertStringToCString(
-				 GetSolvedOuputBasedOnResultMode(Qint(resultInString)));
 
-		 }
-		
-	 }
+	}
+	else {
+
+		bool invalidInput = false;
+		std::string resultInString;
+		try {
+
+			ExpressionProcessor expressHandle(ConvertCStringToString(expression), exMode);
+			result = ConvertStringToCString(expressHandle.GetResult());
+			resultInString = expressHandle.GetResult();
+
+		}
+		catch (...) {
+			result = "ERROR";
+			invalidInput = true;
+		}
+		if (invalidInput == false) {
+
+			result = ConvertStringToCString(
+				GetSolvedOuputBasedOnResultMode(Qint(resultInString)));
+
+		}
+
+	}
+
+
 	
 
 }
@@ -535,16 +542,19 @@ void CBigNumberDlg::OnBnClickedClearOneChar()
 {
 	if (expression.GetLength() >= 1) {
 		expression.Delete(expression.GetLength() - 1, 1);
+		FreeCache();
 		UpdateUI();
 	}
 	
 }
 
 
+
 void CBigNumberDlg::OnBnClickedClearAll()
 {
 	expression = _T("");
 	result = _T("");
+	FreeCache();
 	UpdateUI();
 }
 
@@ -755,16 +765,18 @@ void CBigNumberDlg::OnBnClickedBinEx()
 void CBigNumberDlg::OnBnClickedDecRadioBtn()
 {
 	resultMode = DEC;
-	if (dataTypeMode == QINT) {
 	
+	if (dataTypeMode == QINT) {
+
 		if (expression != "")
 			CalculateQInt();
 	}
-	else if(dataTypeMode == QFLOAT){
+	else if (dataTypeMode == QFLOAT) {
 		if (expression != "") {
 			CalculateQFloat();
 		}
 	}
+
 	
 	UpdateUI();
 }
@@ -773,8 +785,9 @@ void CBigNumberDlg::OnBnClickedDecRadioBtn()
 void CBigNumberDlg::OnBnClickedBinRadioBtn()
 {
 	resultMode = BIN;
+	//CHECK NOT NULL
 	if (dataTypeMode == QINT) {
-	
+
 		if (expression != "")
 			CalculateQInt();
 	}
@@ -782,25 +795,28 @@ void CBigNumberDlg::OnBnClickedBinRadioBtn()
 		if (expression != "") {
 			CalculateQFloat();
 		}
-	}
-	
+	}	
 	UpdateUI();
 }
 
 
 void CBigNumberDlg::OnBnClickedHexRadioBtn()
 {
+	resultMode = HEX;
+
 	
 	if (dataTypeMode == QINT) {
-		resultMode = HEX;
+
 		if (expression != "")
 			CalculateQInt();
 	}
-	else if(dataTypeMode == QFLOAT){
+	else if (dataTypeMode == QFLOAT) {
 		if (expression != "") {
 			CalculateQFloat();
 		}
 	}
+	
+	
 	
 	UpdateUI();
 }
@@ -810,6 +826,8 @@ void CBigNumberDlg::OnChangeInput()
 {
 
 	EDT_Expression.GetWindowTextW(expression);
+	expressionChanged = true;
+
 }
 
 

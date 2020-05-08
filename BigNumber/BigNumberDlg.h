@@ -24,6 +24,11 @@ enum TypeInput {
 	QINT,
 	QFLOAT
 };
+ struct CacheResult {
+	 std::string* decResult;
+	 std::string* binResult;
+	 std::string* hexResult;
+ };
 // CBigNumberDlg dialog
 class CBigNumberDlg : public CDialogEx
 {
@@ -58,7 +63,8 @@ private:
 	Mode exMode = Mode::DEC;
 	Mode resultMode = Mode::DEC;
 	DataTypeMode dataTypeMode = DataTypeMode::QINT;
-
+	bool expressionChanged = false;
+	CacheResult* cache = NULL;
 	void CalculateQFloat();
 
 	//For debug purpose
@@ -67,54 +73,109 @@ private:
 		_cwprintf(_T("%s"), ConvertStringToCString(message));
 	}
 	//D
-	
-	std::string GetSolvedOuputBasedOnResultMode(Qint rawOutput) {
-		if (dataTypeMode == QINT ) {
-
-			if (resultMode == Mode::DEC) {
-				return rawOutput.ToString();
+	bool CheckHasDesiredResult() {
+		if (resultMode == DEC) {
+			if (cache != NULL) {
+				return cache->decResult != NULL;
 			}
-			else if (resultMode == Mode::BIN) {
-				std::string temp = rawOutput.DecToBin(true);
-				std::string formatedResult = "";
-				for (int i = 0; i < temp.length(); i++) {
+			else {
+				return false;
+			}
+		}
+		else if (resultMode == HEX) {
+			if (cache != NULL) {
+				return cache->hexResult != NULL;
+			}
+			else {
+				return false;
+			}
+		}
+		else if (resultMode == BIN) {
+			if (cache != NULL) {
+				return cache->binResult != NULL;
+			}
+			else {
+				return false;
+			}
+		}
+	}
+	std::string GetSolvedOuputBasedOnResultMode(Qint rawOutput) {
+		
+		if (expressionChanged) {
+			FreeCache();
+		}
+		auto flag = CheckHasDesiredResult();
 
-					if (i != 0 && i % 81 == 0) {
-						formatedResult += "\r\n";
+		if (flag == false) {
+
+			if (cache == NULL) {
+				cache = new CacheResult;
+				cache->binResult = new std::string;
+				cache->decResult = new std::string;
+				cache->hexResult = new std::string;
+				cache->binResult = NULL;
+				cache->decResult = NULL;
+				cache->hexResult = NULL;
+			}
+
+			if (dataTypeMode == QINT) {
+
+				if (resultMode == Mode::DEC) {
+					std::string* temp = new std::string;
+					*temp = rawOutput.ToString();
+					cache->decResult = temp;
+					return *temp;
+				}
+				else if (resultMode == Mode::BIN) {
+					std::string* temp = new std::string;
+					*temp = rawOutput.DecToBin(true);
+					std::string formatedResult = "";
+					for (int i = 0; i < temp->length(); i++) {
+
+						if (i != 0 && i % 81 == 0) {
+							formatedResult += "\r\n";
+						}
+						formatedResult += temp->at(i);
+
 					}
-					formatedResult += temp[i];
-
+					*temp = formatedResult;
+					cache->binResult = temp;
+  					return *temp;
+					return formatedResult;
+				}
+				else if (resultMode == Mode::HEX) {
+					std::string* temp = new std::string;
+					*temp = rawOutput.DecToHex();
+					cache->hexResult = temp;
+					return *temp;
 				}
 
-				return formatedResult;
-			}
-			else if (resultMode == Mode::HEX) {
 
-				return rawOutput.DecToHex();
-			}
-			
+			}	
 
 		}
-		else if (dataTypeMode == QFLOAT) {
-			
-			if (resultMode == DEC) {	
+		else {
+		
+			if (resultMode == HEX){
 
-				std::stringstream out;
-				out << rawOutput;	
-				return out.str();
+				return *(cache->hexResult);
+
+			}
+			else if (resultMode == DEC) {
+
+				return *(cache->decResult);
 
 			}
 			else if (resultMode == BIN) {
-				std::string result = "";
-				std::string bits = rawOutput.DecToBin(true);
 
-				for (int i = 0; i < 128; i++) {
-					result += bits[i] ? '1' : '0';
-				}
-				return result;
+				return *(cache->binResult);
+
 			}
 			
+			
+
 		}
+	
 		
 	}
 	std::string GetSolvedOuputBasedOnResultMode(Qfloat rawOutput) {
@@ -255,6 +316,24 @@ private:
 		void ResetUI() {
 			expression = _T("");
 			result = _T("");
+		}
+		void FreeCache() {
+			if (cache) {
+				if (cache->hexResult) {
+					delete(cache->hexResult);
+					cache->hexResult = NULL;
+				}
+				else if (cache->decResult) {
+					delete(cache->decResult);
+					cache->decResult = NULL;
+				}
+				else if (cache->binResult) {
+					delete(cache->binResult);
+					cache->binResult = NULL;
+				}
+				delete(cache);
+				cache = NULL;
+			}
 		}
 		void UpdateUI();
 		bool CheckValidInput(TypeInput type) {
