@@ -179,26 +179,63 @@ private:
 		
 	}
 	std::string GetSolvedOuputBasedOnResultMode(Qfloat rawOutput) {
-		if (dataTypeMode == QFLOAT) {
+
+
+		
+		if (expressionChanged) {
+			FreeCache();
+		}
+		auto flag = CheckHasDesiredResult();
+
+		if (flag == false) {
+
+			if (cache == NULL) {
+				cache = new CacheResult;
+				cache->binResult = new std::string;
+				cache->decResult = new std::string;
+				cache->hexResult = new std::string;
+				cache->binResult = NULL;
+				cache->decResult = NULL;
+				cache->hexResult = NULL;
+			}
+
 
 			if (resultMode == DEC) {
-
+				std::string* temp = new std::string;
 				std::stringstream out;
 				out << rawOutput;
-				return out.str();
+				*temp = out.str();
+				return *temp;
 
 			}
 			else if (resultMode == BIN) {
-				std::string result = "";
+				std::string *result = new std::string;
 				bool* bits = rawOutput.DecToBin(rawOutput);
 
 				for (int i = 0; i < 128; i++) {
-					result += bits[i] ? '1' : '0';
+					*result += bits[i] ? '1' : '0';
 				}
-				return result;
+				cache->binResult = result;
+				return *result;
 			}
 
 		}
+		else {
+		
+			if (resultMode == DEC) {
+
+				return *(cache->decResult);
+
+			}
+			else if (resultMode == BIN) {
+
+				return *(cache->binResult);
+
+			}
+
+
+		}
+		
 
 	}
 	void ShowErrorDialog(std::string message) {

@@ -336,6 +336,7 @@ public:
 	}
 	static bool CheckValidInput(std::string expression,Mode mode,DataTypeMode typeNumber) {
 
+		expression = "(" + expression + ")";
 		std::string pattern;
 		if (typeNumber == QINT) {
 			if (mode == Mode::DEC) {

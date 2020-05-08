@@ -23,7 +23,7 @@ ExpressionProcessor::ExpressionProcessor(std::string input,Mode mode)
 		_result = CalcQint();
 	}
 	catch (...) {
-		AfxMessageBox(_T("Invalid Input"), 0, 0);		
+		AfxMessageBox(_T("Error"), 0, 0);		
 		throw "Invalid input";
 	}
 
