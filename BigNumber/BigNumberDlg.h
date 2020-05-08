@@ -205,6 +205,11 @@ private:
 				std::stringstream out;
 				out << rawOutput;
 				*temp = out.str();
+				if (temp->length() > 82) {
+					(*temp).insert(81, "\r\n");
+				}
+				
+				cache->decResult = temp;
 				return *temp;
 
 			}
@@ -215,6 +220,7 @@ private:
 				for (int i = 0; i < 128; i++) {
 					*result += bits[i] ? '1' : '0';
 				}
+				(*result).insert(81, "\r\n");
 				cache->binResult = result;
 				return *result;
 			}

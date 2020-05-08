@@ -2,6 +2,10 @@
 #include "ExpressionProcessor.h"
 #include "BigNumberDlg.h"
 #include<Windows.h>
+void ExpressionProcessor::Solve()
+{
+	_result = CalcQint();
+}
 ExpressionProcessor::ExpressionProcessor(std::string input,Mode mode)
 {
 	_mode = mode;
@@ -20,7 +24,8 @@ ExpressionProcessor::ExpressionProcessor(std::string input,Mode mode)
 			throw "Invalid input";
 			return;
 		}
-		_result = CalcQint();
+		Solve();
+		
 	}
 	catch (...) {
 		AfxMessageBox(_T("Error"), 0, 0);		

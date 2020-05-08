@@ -17,7 +17,7 @@ private:
 	std::string _expression;
 	std::string _result;
 	Mode _mode;
-
+	void Solve();
 	int getPrioritize(std::string c)
 	{
 		const int MAX = 100;
@@ -351,7 +351,7 @@ public:
 		std::string pattern;
 		if (typeNumber == QINT) {
 			if (mode == Mode::DEC) {
-				pattern = "^\\(((\\+{0,2}|\\-{0,2}|~)?\\d+(\\+{2}|\\-{2}|~)?((\\+|\\-|X|\\*|÷|&|\\||\\^|ror|rol|>>|<<|\\/)(?=((\\+{0,2}|\\-{0,2}|~)?\\d+(\\+{2}|\\-{2}|~)?)))?)+\\)$";
+				pattern = "^\\(((\\+{2}|\\-{0,2}|~)?\\d+(\\+{2}|\\-{2}|~)?((\\+|\\-|X|\\*|÷|&|\\||\\^|ror|rol|>>|<<|\\/)(?=((\\+{2}|\\-{0,2}|~)?\\d+(\\+{2}|\\-{2}|~)?)))?)+\\)$";
 
 			}
 			else if (mode == Mode::BIN) {
@@ -363,7 +363,7 @@ public:
 
 		}
 		else if (typeNumber == QFLOAT) {
-			pattern = "^\\(\\d+(\\.\\d+)?\\)$";
+			pattern = "^\\((\\-|\\+)?\\d+(\\.\\d+)?\\)$";
 		}
 		return CheckValidDecExpression(expression, pattern);
 		
