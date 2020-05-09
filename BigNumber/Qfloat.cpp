@@ -5,7 +5,6 @@
 
 #include "BitProcess.h"
 #include "Convert.h"
-#include "Qint.h"
 
 Qfloat::Qfloat()
 	:_data{ 0 }
@@ -16,7 +15,7 @@ Qfloat::Qfloat(std::string numberOrBits, const bool& isBits)
 {
 	if (!isBits)
 	{
-		std::string bin = Convert::Instance()->ConvertFloatToBin(numberOrBits);
+		std::string bin = Convert::Instance()->ConvertFloatStringToBin(numberOrBits);
 		BitProcess::Instance()->SetBit(_data, bin);
 	}
 	else
@@ -37,14 +36,14 @@ Qfloat::~Qfloat()
 
 void Qfloat::ScanQfloat(std::string num)
 {
-	std::string bin = Convert::Instance()->ConvertFloatToBin(num);
+	std::string bin = Convert::Instance()->ConvertFloatStringToBin(num);
 	BitProcess::Instance()->SetBit(_data, bin);
 }
 
 void Qfloat::PrintQfloat() const
 {
 	const std::string bits = BitProcess::Instance()->GetBit(_data);
-	const std::string bigFloatNumber = Convert::Instance()->ConvertBinToFloat(bits);
+	const std::string bigFloatNumber = Convert::Instance()->ConvertBinToFloatString(bits);
 	std::cout << bigFloatNumber;
 }
 
@@ -67,22 +66,30 @@ bool* Qfloat::DecToBin(const Qfloat& x) const
 	return result;
 }
 
+std::string Qfloat::DecToBin(bool isStr) const
+{
+	const std::string bits = BitProcess::Instance()->GetBit(this->_data);
+	return bits;
+}
+
 Qfloat Qfloat::BinToDec(std::string bits)
 {
 	int length = MAX_CELL * BITS_OF_CELL;
 
-	const std::string numberInStr = Convert::Instance()->ConvertBinToNumString(bits);
-
-	const Qfloat newQfloat = Qfloat(numberInStr);
+	const Qfloat newQfloat = Qfloat(bits, true);
 	return newQfloat;
+}
+
+std::string Qfloat::ToString() const
+{
+	const std::string bits = BitProcess::Instance()->GetBit(_data);
+	const std::string bigFloatNumber = Convert::Instance()->ConvertBinToFloatString(bits);
+	return bigFloatNumber;
 }
 
 std::ostream& operator<<(std::ostream& os, const Qfloat& dt)
 {
-	std::string bits = BitProcess::Instance()->GetBit(dt._data);
-	
-	const std::string bigFloatNumber = Convert::Instance()->ConvertBinToFloat(bits);
-	os << bigFloatNumber;
+	os << dt.ToString();
 	return os;
 }
 
