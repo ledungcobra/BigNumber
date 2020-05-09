@@ -14,337 +14,53 @@ struct PosParentheses {
 class ExpressionProcessor
 {
 private:
+	//Biểu thức đầu vào
 	std::string _expression;
+	//Biểu thức kết quả
 	std::string _result;
+	//Chế độ tính toán Bin Dec hoặc HEX
 	Mode _mode;
-
-	int getPrioritize(std::string c)
-	{
-		const int MAX = 100;
-		if ((c == "x++" || c == "x--" )) {
-			return MAX;
-		}
-		else if (c == "++x" || c == "--x" || c == "~") {
-			return MAX - 1;
-		}
-		else if (c=="*"||c == "X" || c == "÷" |c == "/" || c == "%") {
-			return MAX - 2;
-		}
-		else if (c == "+" || c == "-") {
-			return MAX - 3;
-		}
-		else if (c == ">>" || c == "<<" || c == "ror" || c == "rol") {
-			return MAX - 4;
-		}
-		else if (c == "&") {
-			return MAX - 5;
-		}
-		else if (c == "^") {
-			return MAX - 6;
-		}
-		else if (c == "|") {
-			return MAX - 7;
-		}
-		return MAX - 8;
-	}
-	bool isNumber(char c)
-	{
-		if (c >= '0' && c <= '9')
-			return true;
-		else
-			return false;
-	}
-
-	bool IsOperator(std::string c)
-	{
-		if (
-			c == "rol" ||
-			c == "ror" ||
-			c == "x++" ||
-			c == "x--" ||
-			c == "++x" ||
-			c == "--x" ||
-			c == "~" ||
-			c == "X" ||
-			c == "*"||
-			c == "÷" ||
-			c == "/"||
-			c == "%" ||
-			c == "+" ||
-			c == "-" ||
-			c == ">>" ||
-			c == "<<" ||
-			c == "&" ||
-			c == "^" ||
-			c == "|")
-			return true;
-		return false;
-	}
-	std::queue<std::string> convertInfixToPostfix()
-	{
-		std::stack<std::string> stackExp;
-		std::queue<std::string> queueExp;
-
-		_expression = "(" + _expression;
-		_expression = _expression + ")";
-		for (int i = 0; i < _expression.length(); i++)
-		{
-			if (_expression[i] == '(')
-			{
-				std::string temp(1, _expression[i]);
-				stackExp.push(temp);
-			}
-			else if (_expression[i] == ')')
-			{
-				while (stackExp.top() != "(")
-				{
-					queueExp.push(stackExp.top());
-					stackExp.pop();
-				}
-				stackExp.pop();
-			}
-			else if (isNumber(_expression[i]))
-			{
-				std::string numTemp;
-				while (isNumber(_expression[i]))
-				{
-					std::string temp(1, _expression[i]);
-					numTemp += temp;
-					i++;
-				}
-				i--;
-				queueExp.push(numTemp);
-			}
-			else
-			{
-				std::string currentOperator = "";
-				bool isPostFix = true;
-				std::string subStr = _expression.substr(i, std::string::npos);
-				if (subStr.length()>=2&&
-					(
-						(subStr[0] == '>' && subStr[1] == '>') || 
-						(subStr[0] == '<' && subStr[1] == '<'))
-					) {
-					currentOperator = subStr.substr(0, 2);
-					i++;
-				}
-				else if (subStr.length()>=3 &&
-					(subStr.substr(0,3) == "ror"|| subStr.substr(0, 3) == "rol"))  {
-					currentOperator = subStr.substr(0, 3);
-					i += 2;
-				}
-				else 
-					if (subStr.substr(0, 2) == "++" ||
-					subStr.substr(0, 2) == "--") {
-					currentOperator = subStr.substr(0, 2);
-
-					if (subStr.length() >= 3) {
-						if (isNumber(subStr[2])) {
-							isPostFix = false;
-						}
-					}
-					if (isPostFix == false) {
-						//Prefix
-						currentOperator = currentOperator + "x";
-					}
-					else {
-						currentOperator = "x" + currentOperator;
-					}
-					i++;
-
-				}
-				else {
-					currentOperator = _expression[i];
-				}
-
-				while ((stackExp.top() != "(") &&
-					(getPrioritize(stackExp.top()) >= getPrioritize(currentOperator)))
-				{
-					queueExp.push(stackExp.top());
-					stackExp.pop();
-				}
-
-				stackExp.push(currentOperator);
-			}
-		}
-		return queueExp;
-	}
-	Qint SimpleCalc(Qint *a, Qint b, std::string _operator)
-	{
-		if (_operator == "+")
-			return b+ *a;
-		if (_operator == "-")
-			return  b-*a;
-		if (_operator == "X"||_operator == "*")
-			return b**a;
-		if (_operator == "÷"||_operator == "/")
-			return b/(*a);
-		if (_operator == "^")
-			return b^*a;
-		if (_operator == "~")
-			return ~b;
-		if (_operator == ">>") {
-			return b >> std::stoi(a->ToString());
-		}
-		if (_operator == "<<") {
-			return b << std::stoi(a->ToString());
-		}
-		if (_operator == "&") {
-			return*a&b;
-		}
-		if (_operator == "|") {
-			return *a | b;
-		}
-		
-		if (_operator == "x++") {
-			return b++;
-		}
-		if (_operator == "x--") {
-			return b++;
-		}
-		if (_operator == "++x") {
-			return ++b;
-		}
-		if (_operator == "--x") {
-			return --b;
-		}
-		if (_operator == "ror") {
-			return b.ror(std::stoi(a->ToString()));
-
-		}
-		if (_operator == "rol") {
-			return b.rol(std::stoi(a->ToString()));
-		}
-
-	}
-	std::string CalcQint()
-	{
-		if (_expression == "") throw "Emty";
-
-		auto expression = convertInfixToPostfix();
-		if (expression.empty()) throw "Empty queue";
-	
-		std::stack<Qint> s;
-		std::string temp;
-		while (!expression.empty())
-		{
-			temp = expression.front();
-			if (!IsOperator(temp))
-			{
-				//Là số
-				Qint n(temp,_mode == Mode::BIN);
-				s.push(n);
-				expression.pop();
-			}
-			else
-			{
-				
-				if (temp == "~" ||
-					temp == "x++" ||
-					temp == "x--" ||
-					temp == "++x" ||
-					temp == "--x" 
-					) {
-				
-					Qint b;
-					b = s.top();
-					s.pop();
-					auto result = SimpleCalc(NULL, b, temp);
-					s.push(result);
-					expression.pop();
-				}
-				else {
-					Qint a;
-					Qint b;
-					a = s.top();
-					s.pop();
-					b = s.top();
-					s.pop();
-					Qint result = SimpleCalc(&a, b, temp);
-					s.push(result);
-					expression.pop();
-				}
-
-			}
-		}
-		return s.top().ToString();
-	}
+	//Thực hiện tính toán biểu thức
+	void Solve();
+	//Tính độ ưu tiên các toán tử
+	int GetPrioritize(std::string c);
+	//Kiểm tra 1 char có phải là số hay không
+	static bool IsNumber(char c);
+	//Kiểm tra có phải là toán tử không
+	bool IsOperator(std::string c);
+	//Thực hiện chuyển đổi về dạng post fixx
+	std::queue<std::string> convertInfixToPostfix();
+	//Thực hiện tính toán phù hợp đựa vào toán tử nhận vào
+	Qint SimpleCalc(Qint* a, Qint b, std::string _operator);
+	//Hàm hỗ trợ debug ra console
+	void Print(std::queue<std::string> q);
+	//Thực hiện tính toán biểu thức Qint có thể nhận vào dec hoặc bin
+	std::string CalcQint();
 public:
-	static CString ConvertStringToCString(std::string input)
-	{
-		return CString(input.c_str());
-	}
-
-	static void Debug(std::string message) {
-		_cwprintf(_T("%s"), ConvertStringToCString(message));
-	}
+	//Chuyển đổi kiểu dữ liệu string phù hợp
+	static CString ConvertStringToCString(std::string input);	
+	//Hàm thực hiện debug ra console
+	static void Debug(std::string message);
+	//Constructor nhận vào biểu thức và chế độ tính toán
 	ExpressionProcessor(std::string input,Mode mode);
-	std::string GetResult() {
-		return _result;
-	}	
-	static bool MatchSubExpression(std::string sub,std::string regexPattern) {
-		std::regex pattern(regexPattern);
-		std::regex_iterator<std::string::iterator> rit(sub.begin(), sub.end(), pattern);
-		std::regex_iterator<std::string::iterator> rend;
-
-		if (rit == rend) {
-			return false;
-		}
-		else {
-			return true;
-		}
-		return false;
-
-	}
-
-	static bool CheckValidDecExpression(std::string ex,std::string regexPattern) {
-
-		std::stack<PosParentheses> bucket;
-
-
-		for (int i = 0; i < ex.length(); i++) {
-
-			if (ex[i] == '(') {
-				PosParentheses temp;
-				temp.begin = i;
-				bucket.push(temp);
-			}
-			else if (ex[i] == ')') {
-				if (bucket.empty() == true) {
-					return false;
-				}
-				else {
-					auto current = bucket.top(); bucket.pop();
-					current.end = i;
-					auto sub = ex.substr(current.begin, current.end - current.begin + size_t(1));
-					if (MatchSubExpression(sub,regexPattern) == false) {
-						return false;
-					}
-					else {
-						ex.erase(current.begin, current.end - current.begin + 1);
-						ex.insert(current.begin, "0");
-						i -= sub.length() - 1;
-					}
-				}
-
-			}
-
-		}
-		return bucket.empty();
-
-
-	}
+	//Lấy ra kết quả sau khi đã tính toán
+	std::string GetResult();
+	//Hàm thực hiện khớp chuỗi bằng regex
+	static bool MatchSubExpression(std::string sub, std::string regexPattern);
+	//Hàm kiểm tra xem biểu thức nhận vào có hợp lệ hay không
+	static bool CheckValidDecExpression(std::string ex, std::string regexPattern);
+	//Thực hiện chuẩn hóa biểu thức nhận vào và khớp chuỗi theo từ kiểu dữ liệu khác nhau
 	static bool CheckValidInput(std::string expression,Mode mode,DataTypeMode typeNumber) {
 
+		expression = "(" + expression + ")";
 		std::string pattern;
 		if (typeNumber == QINT) {
 			if (mode == Mode::DEC) {
-				pattern = "^\\(((\\+{0,2}|\\-{0,2}|~)?\\d+(\\+{2}|\\-{2}|~)?((\\+|\\-|X|\\*|÷|&|\\||^|ror|rol|>>|<<|\\/)(?=((\\+{0,2}|\\-{0,2}|~)?\\d+(\\+{2}|\\-{2}|~)?)))?)+\\)$";
+				pattern = "^\\(((\\+{2}|\\-{0,2}|~)?\\d+(\\+{2}|\\-{2}|~)?((\\+|\\-|X|\\*|÷|&|\\||\\^|ror|rol|>>|<<|\\/)(?=((\\+{2}|\\-{0,2}|~)?\\d+(\\+{2}|\\-{2}|~)?)))?)+\\)$";
 
-				//pattern = "^\\(((\\+{0,2}|\\-{0,2}|~)?\\d+(\\+{0,2}|\\-{0,2}|~)?(\\+|\\-|X|÷|&|\\||^|ror|rol|>>|<<)?)+\\)$";	
 			}
 			else if (mode == Mode::BIN) {
-				pattern = "^\\((~?[0-1]+((\\+|\\-|\\X|\\*|÷|&|\\||>>|<<|^|~|ror|rol|\\/)(?=~?[0-1]+))?)+\\)$";
+				pattern = "^\\((~?[0-1]+((\\+|\\-|X|\\*|÷|&|\\||>>|<<|\\^|\\/|~|ror|rol)(?=~?[0-1]+))?)+\\)$";
 			}
 			else if (Mode::HEX == mode) {
 				pattern = "^\\(([0-9A-Fa-f]+)\\)$";
@@ -352,7 +68,7 @@ public:
 
 		}
 		else if (typeNumber == QFLOAT) {
-			pattern = "^\\(\\d+(\\.\\d+)?\\)$";
+			pattern = "^\\((\\-|\\+)?\\d+(\\.\\d+)?\\)$";
 		}
 		return CheckValidDecExpression(expression, pattern);
 		

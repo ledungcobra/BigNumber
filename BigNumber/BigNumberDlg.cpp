@@ -262,7 +262,7 @@ HCURSOR CBigNumberDlg::OnQueryDragIcon()
 void CBigNumberDlg::CalculateQFloat()
 {
 
-	
+	//DO:Cache
 	auto input = ConvertCStringToString(expression);
 	
 	auto i = input.find(")");
@@ -292,6 +292,194 @@ void CBigNumberDlg::CalculateQFloat()
 
 }
 
+bool CBigNumberDlg::CheckHasDesiredResult()
+{
+	if (resultMode == DEC) {
+		if (cache != NULL) {
+			return cache->decResult != NULL;
+		}
+		else {
+			return false;
+		}
+	}
+	else if (resultMode == HEX) {
+		if (cache != NULL) {
+			return cache->hexResult != NULL;
+		}
+		else {
+			return false;
+		}
+	}
+	else if (resultMode == BIN) {
+		if (cache != NULL) {
+			return cache->binResult != NULL;
+		}
+		else {
+			return false;
+		}
+	}
+}
+
+std::string CBigNumberDlg::GetSolvedOuputBasedOnResultMode(Qint rawOutput)
+
+{
+
+	if (expressionChanged) {
+		FreeCache();
+	}
+	auto flag = CheckHasDesiredResult();
+
+	if (flag == false) {
+
+		if (cache == NULL) {
+			cache = new CacheResult;
+			cache->binResult = new std::string;
+			cache->decResult = new std::string;
+			cache->hexResult = new std::string;
+			cache->binResult = NULL;
+			cache->decResult = NULL;
+			cache->hexResult = NULL;
+		}
+
+		if (dataTypeMode == QINT) {
+
+			if (resultMode == Mode::DEC) {
+				std::string* temp = new std::string;
+				*temp = rawOutput.ToString();
+				cache->decResult = temp;
+				return *temp;
+			}
+			else if (resultMode == Mode::BIN) {
+				std::string* temp = new std::string;
+				*temp = rawOutput.DecToBin(true);
+				std::string formatedResult = "";
+				for (int i = 0; i < temp->length(); i++) {
+
+					if (i != 0 && i % 81 == 0) {
+						formatedResult += "\r\n";
+					}
+					formatedResult += temp->at(i);
+
+				}
+				*temp = formatedResult;
+				cache->binResult = temp;
+				return *temp;
+				return formatedResult;
+			}
+			else if (resultMode == Mode::HEX) {
+				std::string* temp = new std::string;
+				*temp = rawOutput.DecToHex();
+				cache->hexResult = temp;
+				return *temp;
+			}
+
+
+		}
+
+	}
+	else {
+
+		if (resultMode == HEX) {
+
+			return *(cache->hexResult);
+
+		}
+		else if (resultMode == DEC) {
+
+			return *(cache->decResult);
+
+		}
+		else if (resultMode == BIN) {
+
+			return *(cache->binResult);
+
+		}
+
+
+
+	}
+
+
+}
+
+std::string CBigNumberDlg::GetSolvedOuputBasedOnResultMode(Qfloat rawOutput)
+{
+
+
+
+	if (expressionChanged) {
+		FreeCache();
+	}
+	auto flag = CheckHasDesiredResult();
+
+	if (flag == false) {
+
+		if (cache == NULL) {
+			cache = new CacheResult;
+			cache->binResult = new std::string;
+			cache->decResult = new std::string;
+			cache->hexResult = new std::string;
+			cache->binResult = NULL;
+			cache->decResult = NULL;
+			cache->hexResult = NULL;
+		}
+
+
+		if (resultMode == DEC) {
+			std::string* temp = new std::string;
+			std::stringstream out;
+			out << rawOutput;
+			*temp = out.str();
+			if (temp->length() > 82) {
+				(*temp).insert(81, "\r\n");
+			}
+
+			cache->decResult = temp;
+			return *temp;
+
+		}
+		else if (resultMode == BIN) {
+			std::string* result = new std::string;
+			bool* bits = rawOutput.DecToBin(rawOutput);
+
+			for (int i = 0; i < 128; i++) {
+				*result += bits[i] ? '1' : '0';
+			}
+			(*result).insert(81, "\r\n");
+			cache->binResult = result;
+			return *result;
+		}
+
+	}
+	else {
+
+		if (resultMode == DEC) {
+
+			return *(cache->decResult);
+
+		}
+		else if (resultMode == BIN) {
+
+			return *(cache->binResult);
+
+		}
+
+
+	}
+
+
+}
+
+void CBigNumberDlg::ShowErrorDialog(std::string message)
+{
+
+	AfxMessageBox((ConvertStringToCString(message)));
+
+}
+
+
+
+
 CString CBigNumberDlg::ConvertStringToCString(std::string input)
 {
 	return CString(input.c_str());
@@ -303,26 +491,160 @@ std::string CBigNumberDlg::ConvertCStringToString(CString cstring)
 	std::string result(t);
 	return result;
 }
+void CBigNumberDlg::EnableAllButton()
+{
+
+	BTN_EQUAL.EnableWindow(TRUE);
+	BTN_PLUS.EnableWindow(TRUE);;
+	BTN_SUBTRACT.EnableWindow(TRUE);;
+	BTN_MULTIPLY.EnableWindow(TRUE);;
+	BTN_DIVIDE.EnableWindow(TRUE);;
+	BTN_DELETE_ONE_CHAR.EnableWindow(TRUE);;
+	BTN_CLEAR_ALL.EnableWindow(TRUE);;
+	BTN_PERCENT.EnableWindow(TRUE);;
+	BTN_9.EnableWindow(TRUE);;
+	BTN_6.EnableWindow(TRUE);;
+	BTN_3.EnableWindow(TRUE);;
+	BTN_DOT.EnableWindow(TRUE);;
+	BTN_ZERO.EnableWindow(TRUE);;
+	BTN_2.EnableWindow(TRUE);;
+	BTN_5.EnableWindow(TRUE);;
+	BTN_8.EnableWindow(TRUE);;
+	BTN_CLOSE_PARENTHESES.EnableWindow(TRUE);
+	BTN_SHIFT_RIGHT.EnableWindow(TRUE);;
+	BTN_SHIFT_LEFT.EnableWindow(TRUE);;
+	BTN_OPEN_PARETHESES.EnableWindow(TRUE);;
+	BTN_7.EnableWindow(TRUE);
+	BTN_4.EnableWindow(TRUE);
+	BTN_1.EnableWindow(TRUE);
+
+	BTN_A.EnableWindow(TRUE);
+	BTN_B.EnableWindow(TRUE);
+	BTN_D.EnableWindow(TRUE);
+	BTN_C.EnableWindow(TRUE);
+	BTN_E.EnableWindow(TRUE);
+	BTN_F.EnableWindow(TRUE);
+}
+
+void CBigNumberDlg::DisableDecBitOperatorButton()
+{
+	BTN_AND.EnableWindow(0);
+	BTN_OR.EnableWindow(0);
+	BTN_NOT.EnableWindow(0);
+	BTN_ROR.EnableWindow(0);
+	BTN_ROL.EnableWindow(0);
+	BTN_PLUS.EnableWindow(0);
+	BTN_SUBTRACT.EnableWindow(0);
+	BTN_MULTIPLY.EnableWindow(0);
+	BTN_DIVIDE.EnableWindow(0);
+	BTN_PERCENT.EnableWindow(0);
+	BTN_SHIFT_LEFT.EnableWindow(0);
+	BTN_SHIFT_RIGHT.EnableWindow(0);
+
+	BTN_OPEN_PARETHESES.EnableWindow(0);
+	BTN_CLOSE_PARENTHESES.EnableWindow(0);
+	BTN_XOR.EnableWindow(0);
+
+}
+
+void CBigNumberDlg::OnHexMode()
+{
+	EnableAllButton();
+	DisableDecBitOperatorButton();
+	BTN_DOT.EnableWindow(FALSE);
+
+}
+
+void CBigNumberDlg::OnDecMode()
+{
+	EnableAllButton();
+	BTN_A.EnableWindow(FALSE);
+	BTN_B.EnableWindow(FALSE);
+	BTN_D.EnableWindow(FALSE);
+	BTN_C.EnableWindow(FALSE);
+	BTN_E.EnableWindow(FALSE);
+	BTN_F.EnableWindow(FALSE);
+	BTN_DOT.EnableWindow(FALSE);
+
+
+}
+void CBigNumberDlg::OnBinMode()
+{
+	BTN_EQUAL.EnableWindow(TRUE);
+	BTN_PLUS.EnableWindow(TRUE);;
+	BTN_SUBTRACT.EnableWindow(TRUE);;
+	BTN_MULTIPLY.EnableWindow(TRUE);;
+	BTN_DIVIDE.EnableWindow(TRUE);;
+	BTN_DELETE_ONE_CHAR.EnableWindow(TRUE);;
+	BTN_CLEAR_ALL.EnableWindow(TRUE);;
+	BTN_PERCENT.EnableWindow(TRUE);;
+	BTN_9.EnableWindow(FALSE);;
+	BTN_6.EnableWindow(FALSE);;
+	BTN_3.EnableWindow(FALSE);;
+	BTN_DOT.EnableWindow(FALSE);;
+	BTN_ZERO.EnableWindow(TRUE);;
+	BTN_2.EnableWindow(FALSE);;
+	BTN_5.EnableWindow(FALSE);;
+	BTN_8.EnableWindow(FALSE);;
+	BTN_CLOSE_PARENTHESES.EnableWindow(TRUE);
+	BTN_SHIFT_RIGHT.EnableWindow(TRUE);;
+	BTN_SHIFT_LEFT.EnableWindow(TRUE);;
+	BTN_OPEN_PARETHESES.EnableWindow(TRUE);;
+	BTN_7.EnableWindow(FALSE);
+	BTN_4.EnableWindow(FALSE);
+	BTN_1.EnableWindow(TRUE);
+	BTN_A.EnableWindow(FALSE);
+	BTN_B.EnableWindow(FALSE);
+	BTN_D.EnableWindow(FALSE);
+	BTN_C.EnableWindow(FALSE);
+	BTN_E.EnableWindow(FALSE);
+	BTN_F.EnableWindow(FALSE);
+}
+void CBigNumberDlg::ResetUI()
+{
+	expression = _T("");
+	result = _T("");
+}
+void CBigNumberDlg::FreeCache()
+{
+	if (cache) {
+		if (cache->hexResult) {
+			delete(cache->hexResult);
+			cache->hexResult = NULL;
+		}
+		else if (cache->decResult) {
+			delete(cache->decResult);
+			cache->decResult = NULL;
+		}
+		else if (cache->binResult) {
+			delete(cache->binResult);
+			cache->binResult = NULL;
+		}
+		delete(cache);
+		cache = NULL;
+	}
+}
 //DEBUG
 void CBigNumberDlg::UpdateUI()
 {
+	
 	if (dataTypeMode == QINT) {		
 
-		if (exMode == HEX) {
+		if (expressionMode == HEX) {
 			OnHexMode();
 		}
-		else if (exMode == DEC) {
+		else if (expressionMode == DEC) {
 			OnDecMode();
 		}
-		else if (exMode == BIN) {
+		else if (expressionMode == BIN) {
 			OnBinMode();
 		}
 
 	}
-
+	
 	EDT_Expression.SetWindowTextW(expression);
 	EDT_Result.SetWindowTextW(result);
-
+	expressionChanged = false;
 	EDT_Expression.SetFocus();
 	EDT_Expression.SetSel(0, -1);
 	EDT_Expression.SetSel(-1);
@@ -335,70 +657,74 @@ void CBigNumberDlg::UpdateUI()
 void CBigNumberDlg::OnBnClickedEqual()
 {
 	EDT_Expression.GetWindowTextW(expression);
+	
 	if (dataTypeMode == QINT) {
 		CalculateQInt();
 	}
-	else if(dataTypeMode == QFLOAT){
+	else if (dataTypeMode == QFLOAT) {
 		CalculateQFloat();
 
 	}
 	UpdateUI();
-
+	expressionChanged = false;
 	
 }
 
 void CBigNumberDlg::CalculateQInt()
 {
 	
-	
-	 if (exMode == HEX) {
-		 if (!ExpressionProcessor::CheckValidInput(ConvertCStringToString(expression), exMode,QINT)) {
-			 ShowErrorDialog("Something wrong with your input check it out!!");
-		 }
-		 else {
-			 
-			 auto convertedEx = ConvertCStringToString(expression);
-			 
-			 for (int i = 0; i < convertedEx.length(); i++) {
-				 if (convertedEx[i] == ')' || convertedEx[i] == '(') {
-					 convertedEx.erase(i, 1);
-				 }
 
-				 if ('a'<=convertedEx[i] && convertedEx[i] <= 'f') {
-					 convertedEx[i] += 'A' - 'a';
-				 }
-			 }
+	if (expressionMode == HEX) {
+		if (!ExpressionProcessor::CheckValidInput(ConvertCStringToString(expression), expressionMode, QINT)) {
+			ShowErrorDialog("Something wrong with your input check it out!!");
+		}
+		else {
 
-			 Qint output = Qint::HexToDec(convertedEx);
-			 result = ConvertStringToCString(GetSolvedOuputBasedOnResultMode(output));
-		 }
-		
+			auto convertedEx = ConvertCStringToString(expression);
 
-	 }
-	 else {
-		
-		 bool invalidInput = false;
-		 std::string resultInString;
-		 try {
+			for (int i = 0; i < convertedEx.length(); i++) {
+				if (convertedEx[i] == ')' || convertedEx[i] == '(') {
+					convertedEx.erase(i, 1);
+				}
 
-			 ExpressionProcessor expressHandle(ConvertCStringToString(expression), exMode);
-			 result = ConvertStringToCString(expressHandle.GetResult());
-			 resultInString = expressHandle.GetResult();
+				if ('a' <= convertedEx[i] && convertedEx[i] <= 'f') {
+					convertedEx[i] += 'A' - 'a';
+				}
+			}
 
-		 }
-		 catch (...) {
-			 result = "0";
-			 invalidInput = true;
-			 Debug("Reach here");
-		 }
-		 if (invalidInput == false) {
+			Qint output = Qint::HexToDec(convertedEx);
+			auto temp = GetSolvedOuputBasedOnResultMode(output);
+			result = ConvertStringToCString(temp);
+				
+		}
 
-			 result = ConvertStringToCString(
-				 GetSolvedOuputBasedOnResultMode(Qint(resultInString)));
 
-		 }
-		
-	 }
+	}
+	else {
+
+		bool invalidInput = false;
+		std::string resultInString;
+		try {
+
+			ExpressionProcessor expressHandle(ConvertCStringToString(expression), expressionMode);
+			result = ConvertStringToCString(expressHandle.GetResult());
+			resultInString = expressHandle.GetResult();
+
+		}
+		catch (...) {
+			result = "ERROR";
+			invalidInput = true;
+		}
+		if (invalidInput == false) {
+
+			result = ConvertStringToCString(
+				GetSolvedOuputBasedOnResultMode(Qint(resultInString)));
+
+		}
+
+	}
+
+
 	
 
 }
@@ -406,91 +732,95 @@ void CBigNumberDlg::CalculateQInt()
 
 void CBigNumberDlg::OnBnClicked1()
 {
-	if(!CheckValidInput(NUMBER)) return;
+
 	expression += _T("1");
 	UpdateUI();
+	expressionChanged = true;
 
 }
 
 
 void CBigNumberDlg::OnBnClicked2()
 {
-	if (!CheckValidInput(NUMBER)) return;
+	
 	expression += _T("2");
 	UpdateUI();
+	expressionChanged = true;
 }
 
 
 void CBigNumberDlg::OnBnClicked3()
 {
-	if (!CheckValidInput(NUMBER)) return;
 	expression += _T("3");
 	UpdateUI();
+	expressionChanged = true;
 }
 
 
 void CBigNumberDlg::OnBnClicked4()
 {
-	if (!CheckValidInput(NUMBER)) return;
 	expression += _T("4");
 	UpdateUI();
+	expressionChanged = true;
 }
 
 
 void CBigNumberDlg::OnBnClicked5()
 {
-	if (!CheckValidInput(NUMBER)) return;
 	expression += _T("5");
 	UpdateUI();
+	expressionChanged = true;
 }
 
 
 void CBigNumberDlg::OnBnClicked6()
 {
-	if (!CheckValidInput(NUMBER)) return;
 	expression += _T("6");
 	UpdateUI();
+	expressionChanged = true;
 }
 
 
 void CBigNumberDlg::OnBnClicked7()
 {
-	if (!CheckValidInput(NUMBER)) return;
 	expression += _T("7");
 	UpdateUI();
+	expressionChanged = true;
 }
 
 
 void CBigNumberDlg::OnBnClicked8()
 {
-	if (!CheckValidInput(NUMBER)) return;
+	
 	expression += _T("8");
 	UpdateUI();
+	expressionChanged = true;
 }
 
 
 void CBigNumberDlg::OnBnClicked9()
 {
-	if (!CheckValidInput(NUMBER)) return;
 	expression += _T("9");
 	UpdateUI();
+	expressionChanged = true;
 }
 
 
 void CBigNumberDlg::OnBnClicked0()
 {
-	if (!CheckValidInput(NUMBER)) return;
 	expression += _T("0");
 	UpdateUI();
+	expressionChanged = true;
 }
 
 
 void CBigNumberDlg::OnBnClickedDot()
 {
 	//Trường hợp nhập 1 dấu chấm
-	if (!CheckValidInput(DOT)) return;
+
 	expression += _T(".");
 	UpdateUI();
+	expressionChanged = true;
 }
 
 
@@ -498,36 +828,38 @@ void CBigNumberDlg::OnBnClickedPlus()
 {
 
 	//Trường hợp nhập + không có số hạng
-	CheckValidInput(OPERATOR);
 	expression += _T("+");
 		
 
 
 	UpdateUI();
+	expressionChanged = true;
 }
 
 
 void CBigNumberDlg::OnBnClickedSubtract()
 {
-	CheckValidInput(OPERATOR);
 	expression += _T("-");
 	UpdateUI();
+	expressionChanged = true;
 }
 
 
 void CBigNumberDlg::OnBnClickedMultiply()
 {
-	CheckValidInput(OPERATOR);
+
 	expression += _T("X");
 	UpdateUI();
+	expressionChanged = true;
 }
 
 
 void CBigNumberDlg::OnBnClickedDivide()
 {
-	CheckValidInput(OPERATOR);
+	
 	expression += _T("÷");
 	UpdateUI();
+	expressionChanged = true;
 }
 
 
@@ -535,30 +867,35 @@ void CBigNumberDlg::OnBnClickedClearOneChar()
 {
 	if (expression.GetLength() >= 1) {
 		expression.Delete(expression.GetLength() - 1, 1);
+		FreeCache();
 		UpdateUI();
 	}
+	expressionChanged = true;
 	
 }
+
 
 
 void CBigNumberDlg::OnBnClickedClearAll()
 {
 	expression = _T("");
 	result = _T("");
+	FreeCache();
 	UpdateUI();
+	expressionChanged = true;
 }
 
 
 void CBigNumberDlg::OnBnClickedShiftRight()
 {
-	CheckValidInput(OPERATOR);
-	if (exMode == DEC) {
+
+	if (expressionMode == DEC) {
 		
 		expression += _T(">>");
 	}
-	else if (exMode == BIN) {
+	else if (expressionMode == BIN) {
 		if (ExpressionProcessor::
-			CheckValidInput(ConvertCStringToString(expression), exMode,QINT)) {
+			CheckValidInput(ConvertCStringToString(expression), expressionMode,QINT)) {
 			
 			Qint output = Qint(ConvertCStringToString(expression),true)>>1;
 			result = ConvertStringToCString(GetSolvedOuputBasedOnResultMode(output));
@@ -575,14 +912,14 @@ void CBigNumberDlg::OnBnClickedShiftRight()
 
 void CBigNumberDlg::OnBnClickedShiftLeft()
 {
-	CheckValidInput(OPERATOR);
-	if (exMode == DEC) {
+	
+	if (expressionMode == DEC) {
 		expression += _T("<<");
 	}
-	else if (exMode == BIN) {
+	else if (expressionMode == BIN) {
 
 		if (ExpressionProcessor::
-			CheckValidInput(ConvertCStringToString(expression), exMode,QINT)) {
+			CheckValidInput(ConvertCStringToString(expression), expressionMode,QINT)) {
 			Qint output = Qint(ConvertCStringToString(expression),true) << 1;
 
 			result = ConvertStringToCString(
@@ -601,34 +938,28 @@ void CBigNumberDlg::OnBnClickedShiftLeft()
 
 void CBigNumberDlg::OnBnClickedCloseParentheses()
 {
-	CheckValidInput(CLOSE_PARENTHESES);
 	expression += _T(")");
 	UpdateUI();
+	expressionChanged = true;
 }
 
 
 
 void CBigNumberDlg::OnBnClickedOpenParentheses()
 {
-	CheckValidInput(OPEN_PARENTHESES);
+
 	expression += _T("(");
 	UpdateUI();
+	expressionChanged = true;
 }
 
-
-//void CBigNumberDlg::OnBnClickedPosOrNegative()
-//{
-//	expression.Insert(0, _T("-("));
-//	expression.Insert(expression.GetLength(), _T(")"));
-//	UpdateUI();
-//
-//}
 
 
 void CBigNumberDlg::OnBnClickedF()
 {
 	expression += _T("F");
 	UpdateUI();
+	expressionChanged = true;
 }
 
 
@@ -636,6 +967,7 @@ void CBigNumberDlg::OnBnClickedE()
 {
 	expression += _T("E");
 	UpdateUI();
+	expressionChanged = true;
 }
 
 
@@ -643,6 +975,7 @@ void CBigNumberDlg::OnBnClickedD()
 {
 	expression += _T("D");
 	UpdateUI();
+	expressionChanged = true;
 }
 
 
@@ -650,6 +983,7 @@ void CBigNumberDlg::OnBnClickedC()
 {
 	expression += _T("C");
 	UpdateUI();
+	expressionChanged = true;
 }
 
 
@@ -657,6 +991,7 @@ void CBigNumberDlg::OnBnClickedB()
 {
 	expression += _T("B");
 	UpdateUI();
+	expressionChanged = true;
 }
 
 
@@ -664,38 +999,39 @@ void CBigNumberDlg::OnBnClickedA()
 {
 	expression += _T("A");
 	UpdateUI();
+	expressionChanged = true;
 }
 
 
 void CBigNumberDlg::OnBnClickedAND()
 {
-	CheckValidInput(OPERATOR);
 	expression += _T("&");
 	UpdateUI();
+	expressionChanged = true;
 }
 
 
 void CBigNumberDlg::OnBnClickedOR()
 {
-	CheckValidInput(OPERATOR);
 	expression += _T("|");
 	UpdateUI();
+	expressionChanged = true;
 }
 
 
 void CBigNumberDlg::OnBnClickedXOR()
 {
-	CheckValidInput(OPERATOR);
 	expression += _T("^");
 	UpdateUI();
+	expressionChanged = true;
 }
 
 
 void CBigNumberDlg::OnBnClickedNOT()
 {
-	CheckValidInput(OPERATOR);
 	expression += _T("~");
 	UpdateUI();
+	expressionChanged = true;
 }
 
 
@@ -704,6 +1040,7 @@ void CBigNumberDlg::OnBnClickedROR()
 
 	expression += _T("ror");
 	UpdateUI();
+	expressionChanged = true;
 }
 
 
@@ -711,6 +1048,7 @@ void CBigNumberDlg::OnBnClickedROL()
 {
 	expression += _T("rol");
 	UpdateUI();
+	expressionChanged = true;
 }
 
 
@@ -720,9 +1058,10 @@ void CBigNumberDlg::OnBnClickedDecEx()
 	BTN_DEC_EX.EnableWindow(FALSE);
 	BTN_HEX_EX.EnableWindow(TRUE);
 	BTN_BIN_EX.EnableWindow(TRUE);
-	exMode = DEC;
+	expressionMode = DEC;
 	ResetUI();
 	UpdateUI();
+	expressionChanged = true;
 }
 
 
@@ -731,9 +1070,10 @@ void CBigNumberDlg::OnBnClickedHexEx()
 	BTN_DEC_EX.EnableWindow(TRUE);
 	BTN_HEX_EX.EnableWindow(FALSE);
 	BTN_BIN_EX.EnableWindow(TRUE);
-	exMode = HEX;
+	expressionMode = HEX;
 	ResetUI();
 	UpdateUI();
+	expressionChanged = true;
 }
 
 
@@ -742,9 +1082,10 @@ void CBigNumberDlg::OnBnClickedBinEx()
 	BTN_DEC_EX.EnableWindow(TRUE);
 	BTN_HEX_EX.EnableWindow(TRUE);
 	BTN_BIN_EX.EnableWindow(FALSE);
-	exMode = BIN;
+	expressionMode = BIN;
 	ResetUI();
 	UpdateUI();
+	expressionChanged = true;
 }
 
 
@@ -755,16 +1096,18 @@ void CBigNumberDlg::OnBnClickedBinEx()
 void CBigNumberDlg::OnBnClickedDecRadioBtn()
 {
 	resultMode = DEC;
-	if (dataTypeMode == QINT) {
 	
+	if (dataTypeMode == QINT) {
+
 		if (expression != "")
 			CalculateQInt();
 	}
-	else if(dataTypeMode == QFLOAT){
+	else if (dataTypeMode == QFLOAT) {
 		if (expression != "") {
 			CalculateQFloat();
 		}
 	}
+
 	
 	UpdateUI();
 }
@@ -773,8 +1116,9 @@ void CBigNumberDlg::OnBnClickedDecRadioBtn()
 void CBigNumberDlg::OnBnClickedBinRadioBtn()
 {
 	resultMode = BIN;
+	//CHECK NOT NULL
 	if (dataTypeMode == QINT) {
-	
+
 		if (expression != "")
 			CalculateQInt();
 	}
@@ -782,25 +1126,28 @@ void CBigNumberDlg::OnBnClickedBinRadioBtn()
 		if (expression != "") {
 			CalculateQFloat();
 		}
-	}
-	
+	}	
 	UpdateUI();
 }
 
 
 void CBigNumberDlg::OnBnClickedHexRadioBtn()
 {
+	resultMode = HEX;
+
 	
 	if (dataTypeMode == QINT) {
-		resultMode = HEX;
+
 		if (expression != "")
 			CalculateQInt();
 	}
-	else if(dataTypeMode == QFLOAT){
+	else if (dataTypeMode == QFLOAT) {
 		if (expression != "") {
 			CalculateQFloat();
 		}
 	}
+	
+	
 	
 	UpdateUI();
 }
@@ -810,6 +1157,8 @@ void CBigNumberDlg::OnChangeInput()
 {
 
 	EDT_Expression.GetWindowTextW(expression);
+	expressionChanged = true;
+
 }
 
 
@@ -831,6 +1180,7 @@ void CBigNumberDlg::OnBnClickedQintMode()
 	BTN_HEX_EX.EnableWindow(1);	
 	BTN_HEX_RADIO.EnableWindow(1);
 
+	expressionChanged = true;
 
 }
 
@@ -872,4 +1222,9 @@ void CBigNumberDlg::OnBnClickedQFloatMode()
 
 
 
+}
+
+void CBigNumberDlg::OnOK()
+{
+	OnBnClickedEqual();
 }

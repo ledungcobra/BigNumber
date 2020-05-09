@@ -13,17 +13,18 @@ enum  Mode {
 	HEX,
 	BIN
 };
-enum TypeInput {
-	NUMBER,
-	OPERATOR,
-	CLOSE_PARENTHESES,
-	OPEN_PARENTHESES,
-	DOT
-};
+
  enum  DataTypeMode {
 	QINT,
 	QFLOAT
 };
+ //Cache data để không phải thực hiện tính toán lại
+
+ struct CacheResult {
+	 std::string* decResult;
+	 std::string* binResult;
+	 std::string* hexResult;
+ };
 // CBigNumberDlg dialog
 class CBigNumberDlg : public CDialogEx
 {
@@ -52,255 +53,62 @@ protected:
 	DECLARE_MESSAGE_MAP()
 
 private:
-	//DEFINE MEMBER
+	//Biểu thức nhận vào input của người dùng
 	CString expression = _T("");
+	//Biểu thức chứa kết quả sau khi tính toán
 	CString result = _T("");
-	Mode exMode = Mode::DEC;
+	//Chế độ nhập vào của biểu thức
+	Mode expressionMode = Mode::DEC;
+	//Chế độ lấy ra kết quả
 	Mode resultMode = Mode::DEC;
+	//Kiểu dữ liệu đang thao tác
 	DataTypeMode dataTypeMode = DataTypeMode::QINT;
-
+	//Kiểm soát việc biểu thức bị thay đổi giá trị
+	bool expressionChanged = false;
+	//Lưu lại dữ liệu đã tính toán trước đó
+	CacheResult* cache = NULL;
+	//Thực hiện tính toán với kiểu dữ liệu Qfloat
 	void CalculateQFloat();
-
-	//For debug purpose
-
+	//Hàm dùng với mục đích debug ra console
 	void Debug(std::string message) {
 		_cwprintf(_T("%s"), ConvertStringToCString(message));
 	}
-	//D
-	
-	std::string GetSolvedOuputBasedOnResultMode(Qint rawOutput) {
-		if (dataTypeMode == QINT ) {
-
-			if (resultMode == Mode::DEC) {
-				return rawOutput.ToString();
-			}
-			else if (resultMode == Mode::BIN) {
-				std::string temp = rawOutput.DecToBin(true);
-				std::string formatedResult = "";
-				for (int i = 0; i < temp.length(); i++) {
-
-					if (i != 0 && i % 81 == 0) {
-						formatedResult += "\r\n";
-					}
-					formatedResult += temp[i];
-
-				}
-
-				return formatedResult;
-			}
-			else if (resultMode == Mode::HEX) {
-
-				return rawOutput.DecToHex();
-			}
-			
-
-		}
-		else if (dataTypeMode == QFLOAT) {
-			
-			if (resultMode == DEC) {	
-
-				std::stringstream out;
-				out << rawOutput;	
-				return out.str();
-
-			}
-			else if (resultMode == BIN) {
-				std::string result = "";
-				std::string bits = rawOutput.DecToBin(true);
-
-				for (int i = 0; i < 128; i++) {
-					result += bits[i] ? '1' : '0';
-				}
-				return result;
-			}
-			
-		}
-		
-	}
-	std::string GetSolvedOuputBasedOnResultMode(Qfloat rawOutput) {
-		if (dataTypeMode == QFLOAT) {
-
-			if (resultMode == DEC) {
-
-				std::stringstream out;
-				out << rawOutput;
-				return out.str();
-
-			}
-			else if (resultMode == BIN) {
-				std::string result = "";
-				bool* bits = rawOutput.DecToBin(rawOutput);
-
-				for (int i = 0; i < 128; i++) {
-					result += bits[i] ? '1' : '0';
-				}
-				return result;
-			}
-
-		}
-
-	}
-	void ShowErrorDialog(std::string message) {
-
-		AfxMessageBox((ConvertStringToCString(message)));
-
-	}
+	//Kiểm tra xem đã có kết quả ở dữ liệu cache chưa 
+	//Dùng cho mục đích nếu chưa có kết quả thì thực hiện tính toán
+	//đảm bảo không lãng phí tài nguyên
+	bool CheckHasDesiredResult();
+	//Lấy ra kết quả output dựa vào chế độ của kết quả 
+	std::string GetSolvedOuputBasedOnResultMode(Qint rawOutput);
+	//Lấy ra kết quả output dựa vào chế độ của kết quả 
+	std::string GetSolvedOuputBasedOnResultMode(Qfloat rawOutput);
+	//Hiện thị hộp thoại lỗi
+	void ShowErrorDialog(std::string message);
 	private:
+		//Chuyển đổi String phù hợp với môi trường đang thao tác
 		CString ConvertStringToCString(std::string input);
-		std::string ConvertCStringToString(CString cstring) ;
+		std::string ConvertCStringToString(CString cstring);
 		
 		//Bật tất cả các button ngoại trừ button data type
-
-		void EnableAllButton() {
-
-			BTN_EQUAL.EnableWindow(TRUE);
-			BTN_PLUS.EnableWindow(TRUE);;
-			BTN_SUBTRACT.EnableWindow(TRUE);;
-			BTN_MULTIPLY.EnableWindow(TRUE);;
-			BTN_DIVIDE.EnableWindow(TRUE);;
-			BTN_DELETE_ONE_CHAR.EnableWindow(TRUE);;
-			BTN_CLEAR_ALL.EnableWindow(TRUE);;
-			BTN_PERCENT.EnableWindow(TRUE);;
-			BTN_9.EnableWindow(TRUE);;
-			BTN_6.EnableWindow(TRUE);;
-			BTN_3.EnableWindow(TRUE);;
-			BTN_DOT.EnableWindow(TRUE);;
-			BTN_ZERO.EnableWindow(TRUE);;
-			BTN_2.EnableWindow(TRUE);;
-			BTN_5.EnableWindow(TRUE);;
-			BTN_8.EnableWindow(TRUE);;
-			BTN_CLOSE_PARENTHESES.EnableWindow(TRUE);
-			BTN_SHIFT_RIGHT.EnableWindow(TRUE);;
-			BTN_SHIFT_LEFT.EnableWindow(TRUE);;
-			BTN_OPEN_PARETHESES.EnableWindow(TRUE);;
-			BTN_7.EnableWindow(TRUE);
-			BTN_4.EnableWindow(TRUE);
-			BTN_1.EnableWindow(TRUE);
-			
-			BTN_A.EnableWindow(TRUE);
-			BTN_B.EnableWindow(TRUE);
-			BTN_D.EnableWindow(TRUE);
-			BTN_C.EnableWindow(TRUE);
-			BTN_E.EnableWindow(TRUE);
-			BTN_F.EnableWindow(TRUE);
-		}
-		void DisableDecBitOperatorButton() {
-			BTN_AND.EnableWindow(0);
-			BTN_OR.EnableWindow(0);
-			BTN_NOT.EnableWindow(0);
-			BTN_ROR.EnableWindow(0);
-			BTN_ROL.EnableWindow(0);
-			BTN_PLUS.EnableWindow(0);
-			BTN_SUBTRACT.EnableWindow(0);
-			BTN_MULTIPLY.EnableWindow(0);
-			BTN_DIVIDE.EnableWindow(0);
-			BTN_PERCENT.EnableWindow(0);
-			BTN_SHIFT_LEFT.EnableWindow(0);
-			BTN_SHIFT_RIGHT.EnableWindow(0);
-		
-			BTN_OPEN_PARETHESES.EnableWindow(0);
-			BTN_CLOSE_PARENTHESES.EnableWindow(0);
-			BTN_XOR.EnableWindow(0);
-
-		}
-		void OnHexMode(){
-			EnableAllButton();
-			DisableDecBitOperatorButton();
-			BTN_DOT.EnableWindow(FALSE);
-
-		}
-		void OnDecMode() {
-			EnableAllButton();
-			BTN_A.EnableWindow(FALSE);
-			BTN_B.EnableWindow(FALSE);
-			BTN_D.EnableWindow(FALSE);
-			BTN_C.EnableWindow(FALSE);
-			BTN_E.EnableWindow(FALSE);
-			BTN_F.EnableWindow(FALSE);
-			BTN_DOT.EnableWindow(FALSE);
-
-			
-		}
-		void OnBinMode() {
-			BTN_EQUAL.EnableWindow(TRUE);
-			BTN_PLUS.EnableWindow(TRUE);;
-			BTN_SUBTRACT.EnableWindow(TRUE);;
-			BTN_MULTIPLY.EnableWindow(TRUE);;
-			BTN_DIVIDE.EnableWindow(TRUE);;
-			BTN_DELETE_ONE_CHAR.EnableWindow(TRUE);;
-			BTN_CLEAR_ALL.EnableWindow(TRUE);;
-			BTN_PERCENT.EnableWindow(TRUE);;
-			BTN_9.EnableWindow(FALSE);;
-			BTN_6.EnableWindow(FALSE);;
-			BTN_3.EnableWindow(FALSE);;
-			BTN_DOT.EnableWindow(FALSE);;
-			BTN_ZERO.EnableWindow(TRUE);;
-			BTN_2.EnableWindow(FALSE);;
-			BTN_5.EnableWindow(FALSE);;
-			BTN_8.EnableWindow(FALSE);;
-			BTN_CLOSE_PARENTHESES.EnableWindow(TRUE);
-			BTN_SHIFT_RIGHT.EnableWindow(TRUE);;
-			BTN_SHIFT_LEFT.EnableWindow(TRUE);;
-			BTN_OPEN_PARETHESES.EnableWindow(TRUE);;
-			BTN_7.EnableWindow(FALSE);
-			BTN_4.EnableWindow(FALSE);
-			BTN_1.EnableWindow(TRUE);
-			BTN_A.EnableWindow(FALSE);
-			BTN_B.EnableWindow(FALSE);
-			BTN_D.EnableWindow(FALSE);
-			BTN_C.EnableWindow(FALSE);
-			BTN_E.EnableWindow(FALSE);
-			BTN_F.EnableWindow(FALSE);
-		}
-		void ResetUI() {
-			expression = _T("");
-			result = _T("");
-		}
+		void EnableAllButton();
+		//Tắt các toán tử liên quan tới dec và bit
+		void DisableDecBitOperatorButton();
+		//Thay đổi UI theo Hex mode
+		void OnHexMode();
+		//Thay đôi UI theo DecMode
+		void OnDecMode();
+		//Thay đổi UI theo BinMode
+		void OnBinMode();
+		//Khôi phục lại UI
+		void ResetUI();		
+		//Giải phóng vùng nhớ cache khi biểu thức nhập vào thay đổi hoặc người dùng nhấn clear
+		void FreeCache();
+		//Cập nhật UI khi có dữ liệu nhập vào
 		void UpdateUI();
-		bool CheckValidInput(TypeInput type) {
-			int lastIndex = expression.GetLength() - 1;
-
-			if (type ==TypeInput:: NUMBER) {
-
-				if (lastIndex >= 0 && expression.GetAt(lastIndex) == ')') return false;
-
-			}
-			else if (type ==TypeInput:: OPERATOR) {
-				
-				if ((lastIndex >= 1&&expression.GetAt(lastIndex) == '(') || lastIndex == 0) return false;
-
-			}
-			else if (type ==TypeInput:: CLOSE_PARENTHESES) {
-
-				int countClose = 0;
-				int countOpen = 0;
-				for (int i = 0; i < expression.GetLength(); i++) {
-					if (expression.GetAt(lastIndex) == '(') countOpen++;
-					if (expression.GetAt(lastIndex) == ')') countClose++;
-				}
-
-				if (countOpen - countClose != 1) {
-					return false;
-				}
-
-			}
-			else if (type ==TypeInput:: DOT) {
-				auto lastChar = expression.GetAt(lastIndex);
-				if (lastChar == ')' ||
-					lastChar == '>'||
-					lastChar == '<' ||
-					lastChar == '|'||
-					lastChar == '^'||
-					lastChar == '~'||
-					lastChar == '&') return false;
-			}
-			return true;
-	
-		}
+		//Thực hiện tính toán theo kiểu dữ liệu Qint
 		void CalculateQInt();
 
 public:
-
+	//Các button quản lí UI
 	CButton BTN_EQUAL;
 	CButton BTN_PLUS;
 	CButton BTN_SUBTRACT;
@@ -332,8 +140,22 @@ public:
 	CButton BTN_F;
 	CEdit EDT_Expression;
 	CEdit EDT_Result;
+	CButton BTN_DEC_EX;
+	CButton BTN_HEX_EX;
+	CButton BTN_BIN_EX;
+	CButton BTN_QintMode;
+	CButton BTN_QfloatMode;
+	CButton BTN_AND;
+	CButton BTN_OR;
+	CButton BTN_XOR;
+	CButton BTN_NOT;
+	CButton BTN_ROR;
+	CButton BTN_ROL;
+	CButton BTN_DEC_RADIO;
+	CButton BTN_BIN_RADIO;
+	CButton BTN_HEX_RADIO;
+	//Các hàm chức năng của các button khi nhận thao tác click
 	afx_msg void OnBnClickedEqual();
-
 	afx_msg void OnBnClicked1();
 	afx_msg void OnBnClicked2();
 	afx_msg void OnBnClicked3();
@@ -354,8 +176,7 @@ public:
 	afx_msg void OnBnClickedShiftRight();
 	afx_msg void OnBnClickedShiftLeft();
 	afx_msg void OnBnClickedCloseParentheses();
-	afx_msg void OnBnClickedOpenParentheses();
-	
+	afx_msg void OnBnClickedOpenParentheses();	
 	afx_msg void OnBnClickedF();
 	afx_msg void OnBnClickedE();
 	afx_msg void OnBnClickedD();
@@ -369,9 +190,6 @@ public:
 	afx_msg void OnBnClickedROR();
 	afx_msg void OnBnClickedROL();
 	afx_msg void OnBnClickedDecEx();
-	CButton BTN_DEC_EX;
-	CButton BTN_HEX_EX;
-	CButton BTN_BIN_EX;
 	afx_msg void OnBnClickedHexEx();
 	afx_msg void OnBnClickedBinEx();	
 	afx_msg void OnBnClickedDecRadioBtn();
@@ -380,15 +198,8 @@ public:
 	afx_msg void OnChangeInput();
 	afx_msg void OnBnClickedQintMode();
 	afx_msg void OnBnClickedQFloatMode();
-	CButton BTN_QintMode;
-	CButton BTN_QfloatMode;
-	CButton BTN_AND;
-	CButton BTN_OR;
-	CButton BTN_XOR;
-	CButton BTN_NOT;
-	CButton BTN_ROR;
-	CButton BTN_ROL;
-	CButton BTN_DEC_RADIO;
-	CButton BTN_BIN_RADIO;
-	CButton BTN_HEX_RADIO;
+
+	//Khi người dùng nhấn Enter thì thực hiện tính toán biểu thức
+	void OnOK();
+	
 };
