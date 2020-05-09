@@ -445,7 +445,10 @@ std::string CBigNumberDlg::GetSolvedOuputBasedOnResultMode(Qfloat rawOutput)
 			for (int i = 0; i < 128; i++) {
 				*result += bits[i] ? '1' : '0';
 			}
-			(*result).insert(81, "\r\n");
+			if (result->length() > 82) {
+				(*result).insert(81, "\r\n");
+			}
+			
 			cache->binResult = result;
 			return *result;
 		}
@@ -1165,7 +1168,7 @@ void CBigNumberDlg::OnChangeInput()
 void CBigNumberDlg::OnBnClickedQintMode()
 {
 	
-
+	FreeCache();
 	dataTypeMode = QINT;
 
 	BTN_QintMode.EnableWindow(FALSE);
@@ -1189,6 +1192,7 @@ void CBigNumberDlg::OnBnClickedQFloatMode()
 {
 	
 	dataTypeMode = QFLOAT;
+	FreeCache();
 	EnableAllButton();
 	BTN_DEC_EX.EnableWindow(1);
 	BTN_DEC_RADIO.EnableWindow(1);
@@ -1219,7 +1223,7 @@ void CBigNumberDlg::OnBnClickedQFloatMode()
 	BTN_HEX_EX.EnableWindow(FALSE);
 	BTN_DEC_EX.EnableWindow(FALSE);
 	BTN_BIN_EX.EnableWindow(FALSE);
-
+	expressionChanged = true;
 
 
 }

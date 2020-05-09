@@ -83,7 +83,6 @@ std::ostream& operator<<(std::ostream& os, const Qfloat& dt)
 	
 	const std::string bigFloatNumber = Convert::Instance()->ConvertBinToFloat(bits);
 	os << bigFloatNumber;
-	//dt.PrintQfloat();
 	return os;
 }
 
